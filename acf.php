@@ -2,8 +2,8 @@
 /*
 Plugin Name: Advanced Custom Fields PRO
 Plugin URI: https://www.advancedcustomfields.com/
-Description: Customise WordPress with powerful, professional and intuitive fields.
-Version: 5.7.7
+Description: Customize WordPress with powerful, professional and intuitive fields.
+Version: 5.7.8
 Author: Elliot Condon
 Author URI: http://www.elliotcondon.com/
 Copyright: Elliot Condon
@@ -18,7 +18,7 @@ if( ! class_exists('ACF') ) :
 class ACF {
 	
 	/** @var string The plugin version number */
-	var $version = '5.7.7';
+	var $version = '5.7.8';
 	
 	/** @var array The plugin settings array */
 	var $settings = array();
