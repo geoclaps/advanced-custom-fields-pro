@@ -209,47 +209,32 @@ class acf_field_flexible_content extends acf_field {
 	*  @param	$field (array)
 	*  @return	$post_id (int)
 	*/
-
-	function get_sub_field( $sub_field, $selector, $field ) {
+	function get_sub_field( $sub_field, $id, $field ) {
 		
-		// bail early if no layouts
-		if( empty($field['layouts']) ) return false;
-		
-		
-		// vars
+		// Get active layout.
 		$active = get_row_layout();
 		
-		
-		// loop
-		foreach( $field['layouts'] as $layout ) {
-			
-			// bail early if active layout does not match
-			if( $active && $active !== $layout['name'] ) continue;
-			
-			
-			// bail early if no sub fields
-			if( empty($layout['sub_fields']) ) continue;
-			
-			
-			// loop
-			foreach( $layout['sub_fields'] as $sub_field ) {
+		// Loop over layouts.
+		if( $field['layouts'] ) {
+			foreach( $field['layouts'] as $layout ) {
 				
-				// check name and key
-				if( $sub_field['name'] == $selector || $sub_field['key'] == $selector ) {
-					
-					// return
-					return $sub_field;
-					
+				// Restict to active layout if within a have_rows() loop.
+				if( $active && $active !== $layout['name'] ) {
+					continue;
 				}
 				
+				// Check sub fields.
+				if( $layout['sub_fields'] ) {
+					$sub_field = acf_search_fields( $id, $layout['sub_fields'] );
+					if( $sub_field ) {
+						break;
+					}
+				}
 			}
-			
 		}
-		
-		
+				
 		// return
-		return false;
-		
+		return $sub_field;
 	}
 	
 	

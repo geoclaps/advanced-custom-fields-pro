@@ -12,6 +12,9 @@ class ACF_Data {
 	/** @var array Storage for data. */
 	var $data = array();
 	
+	/** @var array Storage for data aliases. */
+	var $aliases = array();
+	
 	/**
 	 * __construct
 	 *
@@ -53,6 +56,21 @@ class ACF_Data {
 	}
 	
 	/**
+	 * key
+	 *
+	 * Returns a key for the given name allowing aliasses to work.
+	 *
+	 * @date	18/1/19
+	 * @since	5.7.10
+	 *
+	 * @param	type $var Description. Default.
+	 * @return	type Description.
+	 */
+	function key( $name = '' ) {
+		return isset($this->aliases[ $name ]) ? $this->aliases[ $name ] : $name;
+	}
+	
+	/**
 	 * has
 	 *
 	 * Returns true if this has data for the given name.
@@ -64,7 +82,23 @@ class ACF_Data {
 	 * @return	boolean
 	 */
 	function has( $name = '' ) {
-		return isset($this->data[ $name ]);
+		$key = $this->key($name);
+		return isset($this->data[ $key ]);
+	}
+	
+	/**
+	 * is
+	 *
+	 * Similar to has() but does not check aliases.
+	 *
+	 * @date	7/2/19
+	 * @since	5.7.11
+	 *
+	 * @param	type $var Description. Default.
+	 * @return	type Description.
+	 */
+	function is( $key = '' ) {
+		return isset($this->data[ $key ]);
 	}
 	
 	/**
@@ -78,8 +112,17 @@ class ACF_Data {
 	 * @param	string $name The data name.
 	 * @return	mixed
 	 */
-	function get( $name = '' ) {
-		return isset($this->data[ $name ]) ? $this->data[ $name ] : null;
+	function get( $name = false ) {
+		
+		// Get all.
+		if( $name === false ) {
+			return $this->data;
+		
+		// Get specific.
+		} else {
+			$key = $this->key($name);
+			return isset($this->data[ $key ]) ? $this->data[ $key ] : null;
+		}
 	}
 	
 	/**
@@ -109,7 +152,7 @@ class ACF_Data {
 	 * @param	mixed $value The data value.
 	 * @return	ACF_Data
 	 */
-	function set( $name = '', $value ) {
+	function set( $name = '', $value = null ) {
 		
 		// Set multiple.
 		if( is_array($name) ) {
@@ -119,6 +162,26 @@ class ACF_Data {
 		} else {
 			$this->data[ $name ] = $value;
 		}
+		
+		// Return this for chaining.
+		return $this;
+	}
+	
+	/**
+	 * append
+	 *
+	 * Appends data for the given name and returns $this for chaining.
+	 *
+	 * @date	9/1/19
+	 * @since	5.7.10
+	 *
+	 * @param	mixed $value The data value.
+	 * @return	ACF_Data
+	 */
+	function append( $value = null ) {
+		
+		// Append.
+		$this->data[] = $value;
 		
 		// Return this for chaining.
 		return $this;
@@ -139,6 +202,78 @@ class ACF_Data {
 		
 		// Remove data.
 		unset( $this->data[ $name ] );
+		
+		// Return this for chaining.
+		return $this;
+	}
+	
+	/**
+	 * reset
+	 *
+	 * Resets the data.
+	 *
+	 * @date	22/1/19
+	 * @since	5.7.10
+	 *
+	 * @param	void
+	 * @return	void
+	 */
+	function reset() {
+		$this->data = array();
+		$this->aliases = array();
+	}
+	
+	/**
+	 * count
+	 *
+	 * Returns the data count.
+	 *
+	 * @date	23/1/19
+	 * @since	5.7.10
+	 *
+	 * @param	void
+	 * @return	int
+	 */
+	function count() {
+		return count( $this->data );
+	}
+	
+	/**
+	 * query
+	 *
+	 * Returns a filtered array of data based on the set of key => value arguments.
+	 *
+	 * @date	23/1/19
+	 * @since	5.7.10
+	 *
+	 * @param	void
+	 * @return	int
+	 */
+	function query( $args, $operator = 'AND' ) {
+		return wp_list_filter( $this->data, $args, $operator );
+	}
+	
+	/**
+	 * alias
+	 *
+	 * Sets an alias for the given name allowing data to be found via multiple identifiers.
+	 *
+	 * @date	18/1/19
+	 * @since	5.7.10
+	 *
+	 * @param	type $var Description. Default.
+	 * @return	type Description.
+	 */
+	function alias( $name = '' /*, $alias, $alias2, etc */ ) {
+		
+		// Get all aliases.
+		$args = func_get_args();
+		array_shift( $args );
+		
+		// Loop over aliases and add to data.
+		foreach( $args as $alias ) {
+			$this->aliases[ $alias ] = $name;
+		}
 		
 		// Return this for chaining.
 		return $this;

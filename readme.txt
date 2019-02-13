@@ -66,6 +66,20 @@ From your WordPress dashboard
 
 == Changelog ==
 
+= 5.7.11 =
+*Release Date - 11 Februrary 2019*
+
+* New - Added support for persistent object caching.
+* Fix - Fixed PHP error in `determine_locale()` affecting AJAX requests.
+* Fix - Fixed bug affecting dynamic metabox check when selecting "default" page template.
+* Fix - Fixed bug where tab fields did not render correctly within a dynamic metabox.
+* Tweak - Removed language fallback from "zh_TW" to "zh_CN".
+* Dev - Refactored various core functions.
+* Dev - Added new hook variation functions `acf_add_filter_variations()` and `acf_add_action_variations()`.
+* i18n - Updated Portuguese language thanks to Pedro Mendonça.
+* i18n - Updated German translation thanks to Ralf Koller.
+* i18n - Updated Swiss German translation thanks to Raphael Hüni.
+
 = 5.7.10 =
 *Release Date - 16 January 2019*
 
