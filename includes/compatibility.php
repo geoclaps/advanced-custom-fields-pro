@@ -354,7 +354,7 @@ class ACF_Compatibility {
 		// detect ACF4 data and generate key
 		if( !$field_group['key'] ) {
 			$version = 4;
-			$field_group['key'] = uniqid('group_');
+			$field_group['key'] = isset($field_group['id']) ? "group_{$field_group['id']}" : uniqid('group_');
 		}
 		
 		// prior to version 5.0.0, settings were saved in an 'options' array

@@ -1,7 +1,7 @@
 <?php 
 
 // Register store.
-acf_register_store( 'fields' );
+acf_register_store( 'fields' )->prop( 'multisite', true );
 
 /**
  * acf_get_field

@@ -66,8 +66,24 @@ From your WordPress dashboard
 
 == Changelog ==
 
+= 5.7.12 =
+*Release Date - 15 February 2019*
+
+* Fix - Added missing function `register_field_group()`.
+* Fix - Fixed PHP 5.4 error "Can't use function return value in write context".
+* Fix - Fixed bug causing wp_options values to be slashed incorrectly.
+* Fix - Fixed bug where "sync" feature imported field groups without fields.
+* Fix - Fixed bug preventing `get_field_object()` working with a field key.
+* Fix - Fixed bug causing incorrect results in `get_sub_field()`.
+* Fix - Fixed bug causing draft and preview issues with serialized values.
+* Fix - Fixed bug causing reversed field group metabox order.
+* Fix - Fixed bug causing incorrect character count when validating values.
+* Fix - Fixed bug showing incorrect choices for post_template location rule.
+* Fix - Fixed bug causing incorrect value retrieval after `switch_to_blog()`.
+* i18n - Updated Persian translation thanks to Majix.
+
 = 5.7.11 =
-*Release Date - 11 Februrary 2019*
+*Release Date - 11 February 2019*
 
 * New - Added support for persistent object caching.
 * Fix - Fixed PHP error in `determine_locale()` affecting AJAX requests.

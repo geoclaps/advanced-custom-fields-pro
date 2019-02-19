@@ -1,8 +1,8 @@
 <?php 
 
 // Register notices stores.
-acf_register_store( 'local-fields' );
-acf_register_store( 'local-groups' );
+acf_register_store( 'local-fields' )->prop( 'multisite', true );
+acf_register_store( 'local-groups' )->prop( 'multisite', true );
 acf_register_store( 'local-empty' );
 
 // Register filter.

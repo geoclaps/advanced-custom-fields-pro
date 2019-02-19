@@ -15,6 +15,9 @@ class ACF_Data {
 	/** @var array Storage for data aliases. */
 	var $aliases = array();
 	
+	/** @var bool Enables unique data per site. */
+	var $multisite = false;
+	
 	/**
 	 * __construct
 	 *
@@ -32,8 +35,8 @@ class ACF_Data {
 		$this->cid = acf_uniqid();
 		
 		// Set data.
-		if( $data && is_array($data) ) {
-			$this->data = array_merge($this->data, $data);
+		if( $data ) {
+			$this->set( $data );
 		}
 		
 		// Initialize.
@@ -52,11 +55,32 @@ class ACF_Data {
 	 * @return	void
 	 */
 	function initialize() {
-		
+		// Do nothing.
 	}
 	
 	/**
-	 * key
+	 * prop
+	 *
+	 * Sets a property for the given name and returns $this for chaining.
+	 *
+	 * @date	9/1/19
+	 * @since	5.7.10
+	 *
+	 * @param	(string|array) $name The data name or an array of data.
+	 * @param	mixed $value The data value.
+	 * @return	ACF_Data
+	 */
+	function prop( $name = '', $value = null ) {
+		
+		// Update property.
+		$this->{$name} = $value;
+		
+		// Return this for chaining.
+		return $this;
+	}
+	
+	/**
+	 * _key
 	 *
 	 * Returns a key for the given name allowing aliasses to work.
 	 *
@@ -66,7 +90,7 @@ class ACF_Data {
 	 * @param	type $var Description. Default.
 	 * @return	type Description.
 	 */
-	function key( $name = '' ) {
+	function _key( $name = '' ) {
 		return isset($this->aliases[ $name ]) ? $this->aliases[ $name ] : $name;
 	}
 	
@@ -82,7 +106,7 @@ class ACF_Data {
 	 * @return	boolean
 	 */
 	function has( $name = '' ) {
-		$key = $this->key($name);
+		$key = $this->_key($name);
 		return isset($this->data[ $key ]);
 	}
 	
@@ -120,7 +144,7 @@ class ACF_Data {
 		
 		// Get specific.
 		} else {
-			$key = $this->key($name);
+			$key = $this->_key($name);
 			return isset($this->data[ $key ]) ? $this->data[ $key ] : null;
 		}
 	}
@@ -277,6 +301,53 @@ class ACF_Data {
 		
 		// Return this for chaining.
 		return $this;
+	}
+	
+	/**
+	 * switch_site
+	 *
+	 * Triggered when switching between sites on a multisite installation.
+	 *
+	 * @date	13/2/19
+	 * @since	5.7.11
+	 *
+	 * @param	int $site_id New blog ID.
+	 * @param	int prev_blog_id Prev blog ID.
+	 * @return	void
+	 */
+	function switch_site( $site_id, $prev_site_id ) {
+		
+		// Bail early if not multisite compatible.
+		if( !$this->multisite ) {
+			return;
+		}
+		
+		// Bail early if no change in blog ID.
+		if( $site_id === $prev_site_id ) {
+			return;
+		}
+		
+		// Create storage.
+		if( !isset($this->site_data) ) {
+			$this->site_data = array();
+			$this->site_aliases = array();
+		}
+		
+		// Save state.
+		$this->site_data[ $prev_site_id ] = $this->data;
+		$this->site_aliases[ $prev_site_id ] = $this->aliases;
+		
+		// Reset state.
+		$this->data = array();
+		$this->aliases = array();
+		
+		// Load state.
+		if( isset($this->site_data[ $site_id ]) ) {
+			$this->data = $this->site_data[ $site_id ];
+			$this->aliases = $this->site_aliases[ $site_id ];
+			unset( $this->site_data[ $site_id ] );
+			unset( $this->site_aliases[ $site_id ] );
+		}
 	}
 }
 

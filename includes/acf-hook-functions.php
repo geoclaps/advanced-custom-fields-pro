@@ -1,7 +1,7 @@
 <?php 
 
 // Register store.
-acf_register_store('hook-variations');
+acf_register_store( 'hook-variations' );
 
 /**
  * acf_add_filter_variations
@@ -111,7 +111,7 @@ function _acf_apply_hook_variations() {
 }
 
 // Register store.
-acf_register_store('deprecated-hooks');
+acf_register_store( 'deprecated-hooks' );
 
 /**
  * acf_add_deprecated_filter
