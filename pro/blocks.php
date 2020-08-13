@@ -277,6 +277,9 @@ function acf_prepare_block( $block ) {
  */
 function acf_rendered_block( $block, $content = '', $is_preview = false, $post_id = 0 ) {
 	
+	// Gutenberg plugin passes different parameters to core.
+	$is_preview = is_bool( $is_preview ) ? $is_preview : false;
+	
 	// Start capture.
 	ob_start();
 	
