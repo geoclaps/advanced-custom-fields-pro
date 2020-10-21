@@ -51,7 +51,7 @@ function acf_register_block_type( $block ) {
 	// Register block type in WP.
 	if( function_exists('register_block_type') ) {
 		register_block_type($block['name'], array(
-			'attributes'		=> acf_get_block_type_default_attributes(),
+			'attributes'		=> acf_get_block_type_default_attributes( $block ),
 			'render_callback'	=> 'acf_rendered_block',
 		));
 	}
@@ -149,8 +149,8 @@ function acf_remove_block_type( $name ) {
  * @param	void
  * @return	array
  */
-function acf_get_block_type_default_attributes() {
-	return array(
+function acf_get_block_type_default_attributes( $block_type ) {
+	$attributes = array(
 		'id'		=> array(
 			'type'		=> 'string',
 			'default'	=> '',
@@ -172,6 +172,19 @@ function acf_get_block_type_default_attributes() {
 			'default'	=> '',
 		)
 	);
+	if( !empty( $block_type['supports']['align_text'] ) ) {
+		$attributes['align_text'] = array(
+			'type'		=> 'string',
+			'default'	=> '',
+		);
+	}
+	if( !empty( $block_type['supports']['align_content'] ) ) {
+		$attributes['align_content'] = array(
+			'type'		=> 'string',
+			'default'	=> '',
+		);
+	}
+	return $attributes;
 }
 
 /**
@@ -222,6 +235,11 @@ function acf_validate_block_type( $block ) {
 		'html'		=> false,
 		'mode'		=> true,
 	));
+
+	// Correct "Experimental" flags.
+	if( isset($block['supports']['__experimental_jsx']) ) {
+		$block['supports']['jsx'] = $block['supports']['__experimental_jsx'];
+	}
 	
 	// Return block.
 	return $block;
@@ -253,7 +271,7 @@ function acf_prepare_block( $block ) {
 	
 	// Generate default attributes.
 	$attributes = array();
-	foreach( acf_get_block_type_default_attributes() as $k => $v ) {
+	foreach( acf_get_block_type_default_attributes($block_type) as $k => $v ) {
 		$attributes[ $k ] = $v['default'];
 	}
 	
@@ -280,14 +298,18 @@ function acf_rendered_block( $block, $content = '', $is_preview = false, $post_i
 	// Gutenberg plugin passes different parameters to core.
 	$is_preview = is_bool( $is_preview ) ? $is_preview : false;
 	
-	// Start capture.
+	// Capture block render output.
 	ob_start();
-	
-	// Render.
 	acf_render_block( $block, $content, $is_preview, $post_id );
-	
-	// Return capture.
-	return ob_get_clean();
+	$html = ob_get_clean();
+
+	// Replace <InnerBlocks /> placeholder on front-end.
+	if( !$is_preview ) {
+		// Escape "$" character to avoid "capture group" interpretation.
+		$content = str_replace( '$', '\$', $content );
+		$html = preg_replace( '/<InnerBlocks([\S\s]*?)\/>/', $content, $html );
+	}
+	return $html;
 }
 
 /**
@@ -390,12 +412,13 @@ function acf_get_block_fields( $block ) {
  * @return	void
  */
 function acf_enqueue_block_assets() {
-	
+
 	// Localize text.
 	acf_localize_text(array(
 		'Switch to Edit'		=> __('Switch to Edit', 'acf'),
 		'Switch to Preview'		=> __('Switch to Preview', 'acf'),
-		
+		'Change content alignment'	=> __('Change content alignment', 'acf'),
+
 		/* translators: %s: Block type title */
 		'%s settings'			=> __('%s settings', 'acf'),
 	));
@@ -405,11 +428,29 @@ function acf_enqueue_block_assets() {
 	
 	// Localize data.
 	acf_localize_data(array(
-		'blockTypes'	=> array_values( $block_types )
+		'blockTypes'	=> array_values( $block_types ),
+		
+		// List of attributes to replace for HTML to JSX compatibility.
+		// https://github.com/facebook/react/blob/master/packages/react-dom/src/shared/possibleStandardNames.js
+		'jsxAttributes'	=> array(
+			'cellpadding'	=> 'cellPadding',
+			'cellspacing'	=> 'cellSpacing',
+			'class'			=> 'className',
+			'colspan'		=> 'colSpan',
+			'for'			=> 'htmlFor',
+			'hreflang'		=> 'hrefLang',
+			'readonly'		=> 'readOnly',
+			'rowspan'		=> 'rowSpan',
+			'srclang'		=> 'srcLang',
+			'srcset'		=> 'srcSet',
+			'allowedblocks'	=> 'allowedBlocks',
+			'templatelock'	=> 'templateLock'
+		),
+		'postType'	=> get_post_type()
 	));
 	
 	// Enqueue script.
-	wp_enqueue_script('acf-blocks', acf_get_url("pro/assets/js/acf-pro-blocks.min.js"), array('acf-input', 'wp-blocks'), ACF_VERSION, true );
+	wp_enqueue_script( 'acf-blocks', acf_get_url("pro/assets/js/acf-pro-blocks.min.js"), array('acf-input', 'wp-blocks'), ACF_VERSION, true );
 	
 	// Enqueue block assets.
 	array_map( 'acf_enqueue_block_type_assets', $block_types );

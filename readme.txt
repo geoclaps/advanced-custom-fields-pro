@@ -1,9 +1,9 @@
 === Advanced Custom Fields Pro ===
 Contributors: elliotcondon
-Tags: acf, advanced, custom, field, fields, form, repeater, content
+Tags: acf, fields, custom fields, meta, repeater
 Requires at least: 4.7
 Tested up to: 5.5
-Requires PHP: 5.4
+Requires PHP: 5.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -66,6 +66,64 @@ From your WordPress dashboard
 
 
 == Changelog ==
+
+= 5.9.1 =
+*Release Date - 8 September 2020*
+
+* Fix - Fixed guten-bug causing "Preview Post" button to publish changes.
+* Fix - Fixed guten-bug causing JS errors when editing with Elementor or Beaver Builder.
+* Fix - Fixed bug in Color Picker field causing JS error on front-end forms.
+* Fix - Fixed bug in Post Taxonomy location rule causing incomplete list of rule choices.
+* Fix - Reverted Local JSON "save to source path" enhancement due to DX feedback. 
+* i18n - Updated Indonesian translations thanks to Rio Bahtiar.
+* i18n - Updated Turkish translation thanks to Emre Erkan.
+
+= 5.9.0 =
+*Release Date - 17 August 2020*
+
+* Enhancement - New Field Groups admin.
+    * Added toolbar across all ACF admin pages.
+    * Added new table columns: Description, Key, Location, Local JSON.
+    * Added popup modal to review Local JSON changes before sync.
+    * Added visual representation of where Field Groups will appear.
+    * Added new help tab.
+    * Simplified layout.
+* Enhancement - New ACF Blocks features.
+    * Added support for Inner Blocks.
+    * Added new "jsx" setting.
+    * Added new "align_text" settings.
+    * Added new "align_content" settings.
+* Enhancement - Added duplicate functionality for Repeater and Flexible Content fields.
+* Enhancement - Added PHP validation support for Gutenberg.
+* Enhancement - Added ability to bypass confirmation tooltips (just hold shift).
+* Enhancement - Local JSON files now save back to their loaded source path (not "save_json" setting).
+* Tweak - Replaced all custom icons with dashicons.
+* Tweak - Changed custom post status label from "Inactive" to "Disabled".
+* Tweak - Improved styling of metaboxes positioned in the block editor sidebar.
+* Fix - Improved AJAX request efficiency when editing block className or anchor attributes.
+* Fix - Fixed bug causing unresponsive WYSIWYG fields after moving a block via the up/down arrows.
+* Fix - Fixed bug causing HTML to jump between multiple instances of the same Reusable Block.
+* Fix - Fixed bug sometimes displaying validation errors when saving a draft.
+* Fix - Fixed bug breaking Image field UI when displaying a scaled portrait attachment.
+* Fix - Fixed bug in Link field incorrectly treating the "Cancel" button as "Submit".
+* Fix - Fixed bug where a sub field within a collapsed Repeater row did not grow to the full available width.
+* Fix - Ensured all archive URLs shown in the Page Link field dropdown are unique.
+* Fix - Fixed bug causing incorrect conditional logic settings on nested fields when duplicating a Field Group.
+* Fix - Fixed bug causing license activation issues with some password management browser extensions.
+* Dev - Major improvements to `ACF_Location` class.
+* Dev - Refactored all location classes to optimize performance.
+* Dev - Extracted core JavaScript from "acf-input.js" into a separate "acf.js" file.
+* Dev - Field Group export now shows "active" attribute as bool instead of int.
+* Dev - Added filter "acf/get_object_type" to customize WP object information such as "label" and "icon".
+* Dev - Added action "acf/admin_print_uploader_scripts" fired when printing uploader (WP media) scripts in the footer.
+* Dev - Added filters "acf/pre_load_attachment" and "acf/load_attachment" to customize attachment details.
+* Dev - Added filter "acf/admin/toolbar" to customize the admin toolbar items.
+* Dev - Added new JS actions "duplicate_fields" and "duplicate_field" fired when duplicating a row.
+* i18n - Changed Croatian locale code from "hr_HR to "hr".
+* i18n - Updated Portuguese translation thanks to Pedro Mendonça.
+* i18n - Updated French Canadian translation thanks to Bérenger Zyla.
+* i18n - Updated French translation thanks to Maxime Bernard-Jacquet.
+* i18n - Updated German translations thanks to Ralf Koller.
 
 = 5.8.14 =
 *Release Date - 13 August 2020*
