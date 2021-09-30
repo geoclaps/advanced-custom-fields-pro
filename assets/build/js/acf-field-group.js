@@ -44,7 +44,7 @@
 				alert( acf.__('Field group title is required') );
 				
 				// focus
-				$title.focus();
+				$title.trigger('focus');
 			}
 		},
 		
@@ -180,7 +180,6 @@
 	});
 	
 })(jQuery);
-
 (function($, undefined){
 	
 	acf.FieldObject = acf.Model.extend({
@@ -407,9 +406,35 @@
 		},
 			
 		initialize: function(){
-			// do nothing
+			this.addProFields();
 		},
-		
+
+		addProFields: function() {
+			// Make sure we're only running this on free version.
+			if (acf.data.fieldTypes.hasOwnProperty('clone')) {
+				return;
+			}
+
+			// Make sure we haven't appended these fields before.
+			var $fieldTypeSelect = $('.field-type').not('.acf-free-field-type');
+
+			// Append pro fields to "Layout" group.
+			var $layoutGroup = $fieldTypeSelect.find('optgroup option[value="group"]').parent();
+			$layoutGroup.append(
+				'<option value="null" disabled="disabled">' + acf.__('Repeater (Pro only)') + '</option>' +
+				'<option value="null" disabled="disabled">' + acf.__('Flexible Content (Pro only)') + '</option>' +
+				'<option value="null" disabled="disabled">' + acf.__('Clone (Pro only)') + '</option>'
+			);
+
+			// Add pro fields to "Content" group.
+			var $contentGroup = $fieldTypeSelect.find('optgroup option[value="image"]').parent();
+			$contentGroup.append(
+				'<option value="null" disabled="disabled">' + acf.__('Gallery (Pro only)') + '</option>'
+			);
+
+			$fieldTypeSelect.addClass('acf-free-field-type');
+		},
+
 		render: function(){
 					
 			// vars
@@ -714,8 +739,8 @@
 			// focus label
 			var $label = newField.$setting('label input');
 			setTimeout(function(){
-	        	$label.focus();
-	        }, 251);
+				$label.trigger('focus');
+			}, 251);
 			
 			// update newField label / name
 			var label = newField.prop('label');
@@ -994,7 +1019,6 @@
 	});
 	
 })(jQuery);
-
 (function($, undefined){
 	
 	/**
@@ -1242,8 +1266,37 @@
 	acf.registerFieldSetting( TimePickerDisplayFormatFieldSetting );
 	acf.registerFieldSetting( TimePickerReturnFormatFieldSetting );
 	
-})(jQuery);
+	/**
+	 * Color Picker Settings.
+	 *
+	 * @date	16/12/20
+	 * @since	5.9.4
+	 *
+	 * @param	type $var Description. Default.
+	 * @return	type Description.
+	 */
+	var ColorPickerReturnFormat = acf.FieldSetting.extend({
+		type: 'color_picker',
+		name: 'enable_opacity',
+		render: function(){
+			var $return_format_setting = this.fieldObject.$setting('return_format');
+			var $default_value_setting = this.fieldObject.$setting('default_value');
+			var $labelText = $return_format_setting.find('input[type="radio"][value="string"]').parent('label').contents().last();
+			var $defaultPlaceholder = $default_value_setting.find('input[type="text"]');
+			var l10n = acf.get('colorPickerL10n');
 
+			if( this.field.val() ) {
+				$labelText.replaceWith( l10n.rgba_string );
+				$defaultPlaceholder.attr('placeholder', 'rgba(255,255,255,0.8)');
+			} else {
+				$labelText.replaceWith( l10n.hex_string );
+				$defaultPlaceholder.attr('placeholder', '#FFFFFF');
+			}
+		}
+	});
+	acf.registerFieldSetting( ColorPickerReturnFormat );
+	
+})(jQuery);
 (function($, undefined){
 	
 	/**
@@ -1647,7 +1700,6 @@
 		},
 	});
 })(jQuery);
-
 (function($, undefined){
 	
 	/**
@@ -2100,7 +2152,7 @@
 			// focus label
 			var $label = newField.$input('label');
 			setTimeout(function(){
-	        	$label.focus();
+	        	$label.trigger('focus');
 	        }, 251);
 	        
 	        // open
@@ -2116,7 +2168,6 @@
 	});
 	
 })(jQuery);
-
 (function($, undefined){
 	
 	/**
@@ -2145,6 +2196,7 @@
 		
 		initialize: function(){
 			this.$el = $('#acf-field-group-locations');
+			this.updateGroupsClass();
 		},
 		
 		onClickAddRule: function( e, $el ){
@@ -2165,6 +2217,7 @@
 		
 		addRule: function( $tr ){
 			acf.duplicate( $tr );
+			this.updateGroupsClass();
 		},
 		
 		removeRule: function( $tr ){
@@ -2173,6 +2226,13 @@
 			} else {
 				$tr.remove();
 			}
+
+			// Update h4
+			var $group = this.$('.rule-group:first');
+			$group.find('h4').text( acf.__('Show this field group if') );
+
+
+			this.updateGroupsClass();
 		},
 		
 		changeRule: function( $rule ){
@@ -2217,11 +2277,27 @@
 			
 			// remove all tr's except the first one
 			$group2.find('tr').not(':first').remove();
-		}
+
+			// update the groups class
+			this.updateGroupsClass();
+		},
+
+		updateGroupsClass: function () {
+			var $group = this.$(".rule-group:last");
+
+			var $ruleGroups = $group.closest(".rule-groups");
+
+			var rows_count = $ruleGroups.find(".acf-table tr").length;
+
+			if (rows_count > 1) {
+				$ruleGroups.addClass("rule-groups-multiple");
+			} else {
+				$ruleGroups.removeClass("rule-groups-multiple");
+			}
+		},
 	});
 	
 })(jQuery);
-
 (function($, undefined){
 	
 	var _acf = acf.getCompatibility( acf );
@@ -2503,11 +2579,3 @@
 	});
 	
 })(jQuery);
-
-// @codekit-prepend "_field-group.js";
-// @codekit-prepend "_field-group-field.js";
-// @codekit-prepend "_field-group-settings.js";
-// @codekit-prepend "_field-group-conditions.js";
-// @codekit-prepend "_field-group-fields.js";
-// @codekit-prepend "_field-group-locations.js";
-// @codekit-prepend "_field-group-compatibility.js";
