@@ -55,14 +55,6 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
 
   const blockTypes = {};
   /**
-   * Storage for known instances of ACF blocks.
-   *
-   * @since 5.12
-   * @var array
-   */
-
-  let acfBlocks = [];
-  /**
    * Returns a block type for the given name.
    *
    * @date	20/2/19
@@ -76,55 +68,12 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
     return blockTypes[name] || false;
   }
   /**
-   * Gets an ACF block by the provided clientId.
-   *
-   * @date 19/01/22
-   * @since 5.12
-   *
-   * @param string clientId
-   *
-   * @return array
-   */
-
-
-  function getBlockByClientId(clientId) {
-    return acfBlocks.filter(block => {
-      return block.clientId === clientId;
-    });
-  }
-  /**
-   * Returns any ACF blocks that are present in the Redux store/block editor.
-   *
-   * @date 18/01/22
-   * @since 5.12
-   *
-   * @return array
-   */
-
-
-  function getAcfBlocks() {
-    const parentBlocks = wp.data.select('core/block-editor').getBlocks();
-    parentBlocks.map(block => {
-      if (getBlockType(block.name) && !getBlockByClientId(block.clientId).length) {
-        acfBlocks.push(block);
-      }
-
-      const innerBlocks = wp.data.select('core/block-editor').getBlocks(block.clientId);
-      innerBlocks.map(innerBlock => {
-        if (getBlockType(innerBlock.name) && !getBlockByClientId(innerBlock.clientId).length) {
-          acfBlocks.push(innerBlock);
-        }
-      });
-    });
-    return acfBlocks;
-  }
-  /**
    * Returns true if the provided block is new.
    *
    * @date	31/07/2020
    * @since	5.9.0
    *
-   * @param	object props The block props (of which, the attributes properties is destructured)
+   * @param	{object} props The block props (of which, the attributes properties is destructured)
    * @return	bool
    */
 
@@ -142,9 +91,8 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @date	31/07/2020
    * @since	5.9.0
    *
-   * @param	object props The block props (of which, the attributes and clientId properties are destructured)
-   *
-   * @return boolean
+   * @param	{object} props The block props (of which, the attributes and clientId properties are destructured)
+   * @return	bool
    */
 
 
@@ -153,7 +101,7 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
       attributes,
       clientId
     } = _ref2;
-    return !!getAcfBlocks().filter(block => block.attributes.id === attributes.id).filter(block => block.clientId !== clientId).length;
+    return !!getBlocks().filter(block => block.attributes.id === attributes.id).filter(block => block.clientId !== clientId).length;
   }
   /**
    * Returns true if a block (identified by client ID) is nested in a query loop block.
@@ -161,7 +109,7 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @date 17/1/22
    * @since 5.12
    *
-   * @param string clientId A block client ID
+   * @param {string} clientId A block client ID
    * @return boolean
    */
 
@@ -399,22 +347,21 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @date	27/2/19
    * @since	5.7.13
    *
-   * @param	object args An object of key=>value pairs used to filter results.
+   * @param	{object} args An object of key=>value pairs used to filter results.
    * @return	array.
    */
 
 
   function getBlocks(args) {
-    // Get all blocks (avoid deprecated warning).
-    let blocks = select('core/block-editor').getBlocks(); // Append innerBlocks.
+    let blocks = []; // Local function to recurse through all child blocks and add to the blocks array.
 
-    let i = 0;
+    const recurseBlocks = block => {
+      blocks.push(block);
+      select('core/block-editor').getBlocks(block.clientId).forEach(recurseBlocks);
+    }; // Trigger initial recursion for parent level blocks.
 
-    while (i < blocks.length) {
-      blocks = blocks.concat(blocks[i].innerBlocks);
-      i++;
-    } // Loop over args and filter.
 
+    select('core/block-editor').getBlocks().forEach(recurseBlocks); // Loop over args and filter.
 
     for (const k in args) {
       blocks = blocks.filter(_ref4 => {
@@ -427,7 +374,12 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
 
 
     return blocks;
-  } // Data storage for AJAX requests.
+  }
+  /**
+   * Storage for the AJAX queue.
+   *
+   * @const {array}
+   */
 
 
   const ajaxQueue = {};
@@ -435,7 +387,7 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * Storage for cached AJAX requests for block content.
    *
    * @since 5.12
-   * @var array
+   * @const {array}
    */
 
   const fetchCache = {};
@@ -735,7 +687,6 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
 
       if (isDuplicateBlock(props)) {
         attributes.id = acf.uniqid('block_');
-        acfBlocks = [];
         return;
       }
     }

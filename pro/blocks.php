@@ -352,24 +352,25 @@ function acf_rendered_block( $attributes, $content = '', $is_preview = false, $p
 
 	ob_start();
 
-//	if ( 'edit' === $mode && $is_preview ) {
-//		// Load the block form since we're in edit mode.
-//		$block = acf_prepare_block( $attributes );
-//		acf_setup_meta( $block['data'], $block['id'], true );
-//		$fields = acf_get_block_fields( $block );
-//		acf_prefix_fields( $fields, "acf-{$block['id']}" );
-//
-//		echo '<div class="acf-block-fields acf-fields">';
-//		acf_render_fields( $fields, $block['id'], 'div', 'field' );
-//		echo '</div>';
-//	} else {
+	// if ( 'edit' === $mode && $is_preview ) {
+	// Load the block form since we're in edit mode.
+	// $block = acf_prepare_block( $attributes );
+	// acf_setup_meta( $block['data'], $block['id'], true );
+	// $fields = acf_get_block_fields( $block );
+	// acf_prefix_fields( $fields, "acf-{$block['id']}" );
+	//
+	// echo '<div class="acf-block-fields acf-fields">';
+	// acf_render_fields( $fields, $block['id'], 'div', 'field' );
+	// echo '</div>';
+	// } else {
 		// Capture block render output.
 		acf_render_block( $attributes, $content, $is_preview, $post_id, $wp_block, $context );
-//	}
+	// }
 
 	$html = ob_get_clean();
 
-	if ( in_array( $mode, array( 'preview', 'auto' ) ) && $is_preview ) {
+	//if ( in_array( $mode, array( 'preview', 'auto' ) ) && $is_preview ) {
+	if ( $is_preview ) {
 		$html = '<div class="acf-block-preview">' . $html . '</div>';
 	}
 
