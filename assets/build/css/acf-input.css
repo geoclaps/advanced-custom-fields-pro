@@ -296,10 +296,8 @@ html[dir=rtl] .acf-fields.-left > .acf-field > .acf-input {
   position: relative;
 }
 .acf-postbox > .inside {
-  margin: 0 !important;
-  /* override WP style - do not delete - you have tried this before */
-  padding: 0 !important;
-  /* override WP style - do not delete - you have tried this before */
+  margin: 0 !important; /* override WP style - do not delete - you have tried this before */
+  padding: 0 !important; /* override WP style - do not delete - you have tried this before */
 }
 .acf-postbox .acf-hndle-cog {
   color: #72777c;
@@ -349,8 +347,7 @@ html[dir=rtl] .acf-fields.-left > .acf-field > .acf-input {
   display: none !important;
 }
 .acf-postbox.seamless > .inside {
-  display: block !important;
-  /* stop metabox from hiding when closed */
+  display: block !important; /* stop metabox from hiding when closed */
   margin-left: -12px !important;
   margin-right: -12px !important;
 }
@@ -1170,8 +1167,7 @@ html[dir=rtl] .pac-container .pac-item {
 }
 .acf-relationship .filters .filter input, .acf-relationship .filters .filter select {
   margin: 0;
-  float: none;
-  /* potential fix for media popup? */
+  float: none; /* potential fix for media popup? */
 }
 .acf-relationship .filters .filter input:focus, .acf-relationship .filters .filter input:active, .acf-relationship .filters .filter select:focus, .acf-relationship .filters .filter select:active {
   outline: none;
@@ -1472,8 +1468,7 @@ html[dir=rtl] .acf-fields.-left > .acf-tab-wrap .acf-tab-group {
   left: 0;
   width: 20%;
   border: 0 none;
-  padding: 0 !important;
-  /* important overrides 'left aligned labels' */
+  padding: 0 !important; /* important overrides 'left aligned labels' */
   margin: 1px 0 0;
 }
 .acf-tab-wrap.-left .acf-tab-group li {

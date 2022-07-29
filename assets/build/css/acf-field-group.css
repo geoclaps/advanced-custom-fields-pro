@@ -471,12 +471,10 @@ td.acf-input {
     width: auto !important;
     border: 0 none !important;
   }
-
   tr.acf-field {
     border-top: #ededed solid 1px !important;
     margin-bottom: 0 !important;
   }
-
   td.acf-label {
     background: transparent !important;
     padding-bottom: 0 !important;
