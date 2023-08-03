@@ -1,23 +1,21 @@
-/******/ (() => { // webpackBootstrap
+/******/ (function() { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
 /***/ "./src/advanced-custom-fields-pro/assets/src/js/pro/_acf-blocks-legacy.js":
 /*!********************************************************************************!*\
   !*** ./src/advanced-custom-fields-pro/assets/src/js/pro/_acf-blocks-legacy.js ***!
   \********************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "./node_modules/@babel/runtime/helpers/esm/defineProperty.js");
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/element */ "./node_modules/react/index.js");
-
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__);
 
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0,_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0__["default"])(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
 (function ($, undefined) {
   // Dependencies.
   const {
@@ -43,14 +41,15 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
   const {
     createHigherOrderComponent
   } = wp.compose;
+
   /**
    * Storage for registered block types.
    *
    * @since 5.8.0
    * @var object
    */
-
   const blockTypes = {};
+
   /**
    * Returns a block type for the given name.
    *
@@ -60,10 +59,10 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	string name The block name.
    * @return	(object|false)
    */
-
   function getBlockType(name) {
     return blockTypes[name] || false;
   }
+
   /**
    * Returns true if a block exists for the given name.
    *
@@ -73,11 +72,10 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	string name The block name.
    * @return	bool
    */
-
-
   function isBlockType(name) {
     return !!blockTypes[name];
   }
+
   /**
    * Returns true if the provided block is new.
    *
@@ -87,11 +85,10 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	object props The block props.
    * @return	bool
    */
-
-
   function isNewBlock(props) {
     return !props.attributes.id;
   }
+
   /**
    * Returns true if the provided block is a duplicate:
    * True when there are is another block with the same "id", but a different "clientId".
@@ -102,11 +99,10 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	object props The block props.
    * @return	bool
    */
-
-
   function isDuplicateBlock(props) {
     return getBlocks().filter(block => block.attributes.id === props.attributes.id).filter(block => block.clientId !== props.clientId).length;
   }
+
   /**
    * Registers a block type.
    *
@@ -116,46 +112,42 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	object blockType The block type settings localized from PHP.
    * @return	object The result from wp.blocks.registerBlockType().
    */
-
-
   function registerBlockType(blockType) {
-    // Bail ealry if is excluded post_type.
+    // bail early if is excluded post_type.
     var allowedTypes = blockType.post_types || [];
-
     if (allowedTypes.length) {
       // Always allow block to appear on "Edit reusable Block" screen.
-      allowedTypes.push('wp_block'); // Check post type.
+      allowedTypes.push('wp_block');
 
+      // Check post type.
       var postType = acf.get('postType');
-
       if (allowedTypes.indexOf(postType) === -1) {
         return false;
       }
-    } // Handle svg HTML.
+    }
 
-
+    // Handle svg HTML.
     if (typeof blockType.icon === 'string' && blockType.icon.substr(0, 4) === '<svg') {
       const iconHTML = blockType.icon;
       blockType.icon = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(Div, null, iconHTML);
-    } // Remove icon if empty to allow for default "block".
+    }
+
+    // Remove icon if empty to allow for default "block".
     // Avoids JS error preventing block from being registered.
-
-
     if (!blockType.icon) {
       delete blockType.icon;
-    } // Check category exists and fallback to "common".
+    }
 
-
+    // Check category exists and fallback to "common".
     var category = wp.blocks.getCategories().filter(cat => cat.slug === blockType.category).pop();
-
     if (!category) {
       //console.warn( `The block "${blockType.name}" is registered with an unknown category "${blockType.category}".` );
       blockType.category = 'common';
-    } // Define block type attributes.
+    }
+
+    // Define block type attributes.
     // Leave default undefined to allow WP to serialize attributes in HTML comments.
     // See https://github.com/WordPress/gutenberg/issues/7342
-
-
     let attributes = {
       id: {
         type: 'string'
@@ -172,23 +164,25 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
       mode: {
         type: 'string'
       }
-    }; // Append edit and save functions.
+    };
 
+    // Append edit and save functions.
     let ThisBlockEdit = BlockEdit;
-    let ThisBlockSave = BlockSave; // Apply align_text functionality.
+    let ThisBlockSave = BlockSave;
 
+    // Apply align_text functionality.
     if (blockType.supports.align_text) {
       attributes = withAlignTextAttributes(attributes);
       ThisBlockEdit = withAlignTextComponent(ThisBlockEdit, blockType);
-    } // Apply align_content functionality.
+    }
 
-
+    // Apply align_content functionality.
     if (blockType.supports.align_content) {
       attributes = withAlignContentAttributes(attributes);
       ThisBlockEdit = withAlignContentComponent(ThisBlockEdit, blockType);
-    } // Merge in block settings.
+    }
 
-
+    // Merge in block settings.
     blockType = acf.parseArgs(blockType, {
       title: '',
       name: '',
@@ -200,22 +194,32 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
       save: function (props) {
         return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(ThisBlockSave, props);
       }
-    }); // Add to storage.
+    });
 
-    blockTypes[blockType.name] = blockType; // Register with WP.
+    // Remove all attribute defaults from PHP values to allow serialisation.
+    // https://github.com/WordPress/gutenberg/issues/7342
+    for (const key in blockType.attributes) {
+      delete blockType.attributes[key].default;
+    }
 
-    var result = wp.blocks.registerBlockType(blockType.name, blockType); // Fix bug in 'core/anchor/attribute' filter overwriting attribute.
+    // Add to storage.
+    blockTypes[blockType.name] = blockType;
+
+    // Register with WP.
+    var result = wp.blocks.registerBlockType(blockType.name, blockType);
+
+    // Fix bug in 'core/anchor/attribute' filter overwriting attribute.
     // See https://github.com/WordPress/gutenberg/issues/15240
-
     if (result.attributes.anchor) {
       result.attributes.anchor = {
         type: 'string'
       };
-    } // Return result.
+    }
 
-
+    // Return result.
     return result;
   }
+
   /**
    * Returns the wp.data.select() response with backwards compatibility.
    *
@@ -225,15 +229,13 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	string selector The selector name.
    * @return	mixed
    */
-
-
   function select(selector) {
     if (selector === 'core/block-editor') {
       return wp.data.select('core/block-editor') || wp.data.select('core/editor');
     }
-
     return wp.data.select(selector);
   }
+
   /**
    * Returns the wp.data.dispatch() response with backwards compatibility.
    *
@@ -243,11 +245,10 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	string selector The selector name.
    * @return	mixed
    */
-
-
   function dispatch(selector) {
     return wp.data.dispatch(selector);
   }
+
   /**
    * Returns an array of all blocks for the given args.
    *
@@ -257,30 +258,29 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	object args An object of key=>value pairs used to filter results.
    * @return	array.
    */
-
-
   function getBlocks(args) {
     // Get all blocks (avoid deprecated warning).
-    let blocks = select('core/block-editor').getBlocks(); // Append innerBlocks.
+    let blocks = select('core/block-editor').getBlocks();
 
+    // Append innerBlocks.
     let i = 0;
-
     while (i < blocks.length) {
       blocks = blocks.concat(blocks[i].innerBlocks);
       i++;
-    } // Loop over args and filter.
+    }
 
-
+    // Loop over args and filter.
     for (var k in args) {
       blocks = blocks.filter(block => block.attributes[k] === args[k]);
-    } // Return results.
+    }
 
-
+    // Return results.
     return blocks;
-  } // Data storage for AJAX requests.
+  }
 
-
+  // Data storage for AJAX requests.
   const ajaxQueue = {};
+
   /**
    * Fetches a JSON result from the AJAX API.
    *
@@ -291,14 +291,14 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @query	object The query args used in AJAX callback.
    * @return	object The AJAX promise.
    */
-
   function fetchBlock(args) {
     const {
       attributes = {},
       query = {},
       delay = 0
-    } = args; // Use storage or default data.
+    } = args;
 
+    // Use storage or default data.
     const {
       id
     } = attributes;
@@ -306,10 +306,12 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
       query: {},
       timeout: false,
       promise: $.Deferred()
-    }; // Append query args to storage.
+    };
 
-    data.query = _objectSpread(_objectSpread({}, data.query), query); // Set fresh timeout.
+    // Append query args to storage.
+    data.query = _objectSpread(_objectSpread({}, data.query), query);
 
+    // Set fresh timeout.
     clearTimeout(data.timeout);
     data.timeout = setTimeout(function () {
       $.ajax({
@@ -330,12 +332,15 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
       }).fail(function () {
         data.promise.reject.apply(this, arguments);
       });
-    }, delay); // Update storage.
+    }, delay);
 
-    ajaxQueue[id] = data; // Return promise.
+    // Update storage.
+    ajaxQueue[id] = data;
 
+    // Return promise.
     return data.promise;
   }
+
   /**
    * Returns true if both object are the same.
    *
@@ -346,11 +351,10 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	object obj2
    * @return	bool
    */
-
-
   function compareObjects(obj1, obj2) {
     return JSON.stringify(obj1) === JSON.stringify(obj2);
   }
+
   /**
    * Converts HTML into a React element.
    *
@@ -360,11 +364,10 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	string html The HTML to convert.
    * @return	object Result of React.createElement().
    */
-
-
   acf.parseJSX = function (html) {
     return parseNode($(html)[0]);
   };
+
   /**
    * Converts a DOM node into a React element.
    *
@@ -374,37 +377,36 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	DOM node The DOM node.
    * @return	object Result of React.createElement().
    */
-
-
   function parseNode(node) {
     // Get node name.
     var nodeName = parseNodeName(node.nodeName.toLowerCase());
-
     if (!nodeName) {
       return null;
-    } // Get node attributes in React friendly format.
+    }
 
-
+    // Get node attributes in React friendly format.
     var nodeAttrs = {};
     acf.arrayArgs(node.attributes).map(parseNodeAttr).forEach(function (attr) {
       nodeAttrs[attr.name] = attr.value;
-    }); // Define args for React.createElement().
+    });
 
+    // Define args for React.createElement().
     var args = [nodeName, nodeAttrs];
     acf.arrayArgs(node.childNodes).forEach(function (child) {
       if (child instanceof Text) {
         var text = child.textContent;
-
         if (text) {
           args.push(text);
         }
       } else {
         args.push(parseNode(child));
       }
-    }); // Return element.
+    });
 
+    // Return element.
     return React.createElement.apply(this, args);
   }
+
   /**
    * Converts a node or attribute name into it's JSX compliant name
    *
@@ -414,13 +416,12 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param    string name The node or attribute name.
    * @returns  string
    */
-
-
   function getJSXName(name) {
     var replacement = acf.isget(acf, 'jsxNameReplacements', name);
     if (replacement) return replacement;
     return name;
   }
+
   /**
    * Converts the given name into a React friendly name or component.
    *
@@ -430,26 +431,21 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	string name The node name in lowercase.
    * @return	mixed
    */
-
-
   function parseNodeName(name) {
     switch (name) {
       case 'innerblocks':
         return InnerBlocks;
-
       case 'script':
         return Script;
-
       case '#comment':
         return null;
-
       default:
         // Replace names for JSX counterparts.
         name = getJSXName(name);
     }
-
     return name;
   }
+
   /**
    * Converts the given attribute into a React friendly name and value object.
    *
@@ -459,67 +455,62 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	obj nodeAttr The node attribute.
    * @return	obj
    */
-
-
   function parseNodeAttr(nodeAttr) {
     var name = nodeAttr.name;
     var value = nodeAttr.value;
-
     switch (name) {
       // Class.
       case 'class':
         name = 'className';
         break;
-      // Style.
 
+      // Style.
       case 'style':
         var css = {};
         value.split(';').forEach(function (s) {
           var pos = s.indexOf(':');
-
           if (pos > 0) {
             var ruleName = s.substr(0, pos).trim();
-            var ruleValue = s.substr(pos + 1).trim(); // Rename core properties, but not CSS variables.
+            var ruleValue = s.substr(pos + 1).trim();
 
+            // Rename core properties, but not CSS variables.
             if (ruleName.charAt(0) !== '-') {
               ruleName = acf.strCamelCase(ruleName);
             }
-
             css[ruleName] = ruleValue;
           }
         });
         value = css;
         break;
-      // Default.
 
+      // Default.
       default:
         // No formatting needed for "data-x" attributes.
         if (name.indexOf('data-') === 0) {
           break;
-        } // Replace names for JSX counterparts.
+        }
 
+        // Replace names for JSX counterparts.
+        name = getJSXName(name);
 
-        name = getJSXName(name); // Convert JSON values.
-
+        // Convert JSON values.
         var c1 = value.charAt(0);
-
         if (c1 === '[' || c1 === '{') {
           value = JSON.parse(value);
-        } // Convert bool values.
+        }
 
-
+        // Convert bool values.
         if (value === 'true' || value === 'false') {
           value = value === 'true';
         }
-
         break;
     }
-
     return {
       name: name,
       value: value
     };
   }
+
   /**
    * Higher Order Component used to set default block attribute values.
    *
@@ -532,103 +523,93 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	Component BlockListBlock The BlockListBlock Component.
    * @return	Component
    */
-
-
   var withDefaultAttributes = createHigherOrderComponent(function (BlockListBlock) {
     return class WrappedBlockEdit extends Component {
       constructor(props) {
-        super(props); // Extract vars.
+        super(props);
 
+        // Extract vars.
         const {
           name,
           attributes
-        } = this.props; // Only run on ACF Blocks.
+        } = this.props;
 
+        // Only run on ACF Blocks.
         const blockType = getBlockType(name);
-
         if (!blockType) {
           return;
-        } // Set unique ID and default attributes for newly added blocks.
+        }
 
-
+        // Set unique ID and default attributes for newly added blocks.
         if (isNewBlock(props)) {
           attributes.id = acf.uniqid('block_');
-
           for (let attribute in blockType.attributes) {
             if (attributes[attribute] === undefined && blockType[attribute] !== undefined) {
               attributes[attribute] = blockType[attribute];
             }
           }
-
           return;
-        } // Generate new ID for duplicated blocks.
+        }
 
-
+        // Generate new ID for duplicated blocks.
         if (isDuplicateBlock(props)) {
           attributes.id = acf.uniqid('block_');
           return;
         }
       }
-
       render() {
         return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockListBlock, this.props);
       }
-
     };
   }, 'withDefaultAttributes');
   wp.hooks.addFilter('editor.BlockListBlock', 'acf/with-default-attributes', withDefaultAttributes);
+
   /**
    * The BlockSave functional component.
    *
    * @date	08/07/2020
    * @since	5.9.0
    */
-
   function BlockSave() {
     return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(InnerBlocks.Content, null);
   }
+
   /**
    * The BlockEdit component.
    *
    * @date	19/2/19
    * @since	5.7.12
    */
-
-
   class BlockEdit extends Component {
     constructor(props) {
       super(props);
       this.setup();
     }
-
     setup() {
       const {
         name,
         attributes
       } = this.props;
-      const blockType = getBlockType(name); // Restrict current mode.
+      const blockType = getBlockType(name);
 
+      // Restrict current mode.
       function restrictMode(modes) {
         if (modes.indexOf(attributes.mode) === -1) {
           attributes.mode = modes[0];
         }
       }
-
       switch (blockType.mode) {
         case 'edit':
           restrictMode(['edit', 'preview']);
           break;
-
         case 'preview':
           restrictMode(['preview', 'edit']);
           break;
-
         default:
           restrictMode(['auto']);
           break;
       }
     }
-
     render() {
       const {
         name,
@@ -638,25 +619,24 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
       const {
         mode
       } = attributes;
-      const blockType = getBlockType(name); // Show toggle only for edit/preview modes.
+      const blockType = getBlockType(name);
 
+      // Show toggle only for edit/preview modes.
       let showToggle = blockType.supports.mode;
-
       if (mode === 'auto') {
         showToggle = false;
-      } // Configure toggle variables.
+      }
 
-
+      // Configure toggle variables.
       const toggleText = mode === 'preview' ? acf.__('Switch to Edit') : acf.__('Switch to Preview');
       const toggleIcon = mode === 'preview' ? 'edit' : 'welcome-view-site';
-
       function toggleMode() {
         setAttributes({
           mode: mode === 'preview' ? 'edit' : 'preview'
         });
-      } // Return template.
+      }
 
-
+      // Return template.
       return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(Fragment, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockControls, null, showToggle && (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(Toolbar, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(IconButton, {
         className: "components-icon-button components-toolbar__control",
         label: toggleText,
@@ -666,16 +646,14 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
         className: "acf-block-component acf-block-panel"
       }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockForm, this.props))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockBody, this.props));
     }
-
   }
+
   /**
    * The BlockBody component.
    *
    * @date	19/2/19
    * @since	5.7.12
    */
-
-
   class _BlockBody extends Component {
     render() {
       const {
@@ -689,21 +667,21 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
         className: "acf-block-component acf-block-body"
       }, mode === 'auto' && isSelected ? (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockForm, this.props) : mode === 'auto' && !isSelected ? (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockPreview, this.props) : mode === 'preview' ? (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockPreview, this.props) : (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockForm, this.props));
     }
+  }
 
-  } // Append blockIndex to component props.
-
-
+  // Append blockIndex to component props.
   const BlockBody = withSelect(function (select, ownProps) {
     const {
       clientId
-    } = ownProps; // Use optional rootClientId to allow discoverability of child blocks.
-
+    } = ownProps;
+    // Use optional rootClientId to allow discoverability of child blocks.
     const rootClientId = select('core/block-editor').getBlockRootClientId(clientId);
     const index = select('core/block-editor').getBlockIndex(clientId, rootClientId);
     return {
       index
     };
   })(_BlockBody);
+
   /**
    * A react component to append HTMl.
    *
@@ -713,7 +691,6 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	string children The html to insert.
    * @return	void
    */
-
   class Div extends Component {
     render() {
       return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", {
@@ -722,8 +699,8 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
         }
       });
     }
-
   }
+
   /**
    * A react Component for inline scripts.
    *
@@ -736,31 +713,26 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	type Var Description.
    * @return	type Description.
    */
-
-
   class Script extends Component {
     render() {
       return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", {
         ref: el => this.el = el
       });
     }
-
     setHTML(html) {
       $(this.el).html(`<script>${html}</script>`);
     }
-
     componentDidUpdate() {
       this.setHTML(this.props.children);
     }
-
     componentDidMount() {
       this.setHTML(this.props.children);
     }
+  }
 
-  } // Data storage for DynamicHTML components.
-
-
+  // Data storage for DynamicHTML components.
   const store = {};
+
   /**
    * DynamicHTML Class.
    *
@@ -772,182 +744,158 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	void
    * @return	void
    */
-
   class DynamicHTML extends Component {
     constructor(props) {
-      super(props); // Bind callbacks.
+      super(props);
 
-      this.setRef = this.setRef.bind(this); // Define default props and call setup().
+      // Bind callbacks.
+      this.setRef = this.setRef.bind(this);
 
+      // Define default props and call setup().
       this.id = '';
       this.el = false;
       this.subscribed = true;
       this.renderMethod = 'jQuery';
-      this.setup(props); // Load state.
+      this.setup(props);
 
+      // Load state.
       this.loadState();
     }
-
-    setup(props) {// Do nothing.
+    setup(props) {
+      // Do nothing.
     }
-
-    fetch() {// Do nothing.
+    fetch() {
+      // Do nothing.
     }
-
-    maybePreload(blockId) {
-      if (this.state.html === undefined) {
-        const preloadedBlocks = acf.get('preloadedBlocks');
-
-        if (preloadedBlocks && preloadedBlocks[blockId]) {
-          // Set HTML to the preloaded version.
-          this.setHtml(preloadedBlocks[blockId]); // Delete the preloaded HTML so we don't try to load it again.
-
-          delete preloadedBlocks[blockId];
-          acf.set('preloadedBlocks', preloadedBlocks);
-          return true;
-        }
-      }
-
-      return false;
-    }
-
     loadState() {
       this.state = store[this.id] || {};
     }
-
     setState(state) {
-      store[this.id] = _objectSpread(_objectSpread({}, this.state), state); // Update component state if subscribed.
-      // - Allows AJAX callback to update store without modifying state of an unmounted component.
+      store[this.id] = _objectSpread(_objectSpread({}, this.state), state);
 
+      // Update component state if subscribed.
+      // - Allows AJAX callback to update store without modifying state of an unmounted component.
       if (this.subscribed) {
         super.setState(state);
       }
     }
-
     setHtml(html) {
-      html = html ? html.trim() : ''; // Bail early if html has not changed.
+      html = html ? html.trim() : '';
 
+      // Bail early if html has not changed.
       if (html === this.state.html) {
         return;
-      } // Update state.
+      }
 
-
+      // Update state.
       var state = {
         html: html
       };
-
       if (this.renderMethod === 'jsx') {
         state.jsx = acf.parseJSX(html);
         state.$el = $(this.el);
       } else {
         state.$el = $(html);
       }
-
       this.setState(state);
     }
-
     setRef(el) {
       this.el = el;
     }
-
     render() {
       // Render JSX.
       if (this.state.jsx) {
         return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", {
           ref: this.setRef
         }, this.state.jsx);
-      } // Return HTML.
+      }
 
-
+      // Return HTML.
       return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", {
         ref: this.setRef
       }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(Placeholder, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(Spinner, null)));
     }
-
     shouldComponentUpdate(nextProps, nextState) {
       if (nextProps.index !== this.props.index) {
         this.componentWillMove();
       }
-
       return nextState.html !== this.state.html;
     }
-
     display(context) {
       // This method is called after setting new HTML and the Component render.
       // The jQuery render method simply needs to move $el into place.
       if (this.renderMethod === 'jQuery') {
         var $el = this.state.$el;
         var $prevParent = $el.parent();
-        var $thisParent = $(this.el); // Move $el into place.
+        var $thisParent = $(this.el);
 
-        $thisParent.html($el); // Special case for reusable blocks.
+        // Move $el into place.
+        $thisParent.html($el);
+
+        // Special case for reusable blocks.
         // Multiple instances of the same reusable block share the same block id.
         // This causes all instances to share the same state (cool), which unfortunately
         // pulls $el back and forth between the last rendered reusable block.
         // This simple fix leaves a "clone" behind :)
-
         if ($prevParent.length && $prevParent[0] !== $thisParent[0]) {
           $prevParent.html($el.clone());
         }
-      } // Call context specific method.
+      }
 
-
+      // Call context specific method.
       switch (context) {
         case 'append':
           this.componentDidAppend();
           break;
-
         case 'remount':
           this.componentDidRemount();
           break;
       }
     }
-
     componentDidMount() {
       // Fetch on first load.
       if (this.state.html === undefined) {
         //console.log('componentDidMount', this.id);
-        this.fetch(); // Or remount existing HTML.
+        this.fetch();
+
+        // Or remount existing HTML.
       } else {
         this.display('remount');
       }
     }
-
     componentDidUpdate(prevProps, prevState) {
       // HTML has changed.
       this.display('append');
     }
-
     componentDidAppend() {
       acf.doAction('append', this.state.$el);
     }
-
     componentWillUnmount() {
-      acf.doAction('unmount', this.state.$el); // Unsubscribe this component from state.
+      acf.doAction('unmount', this.state.$el);
 
+      // Unsubscribe this component from state.
       this.subscribed = false;
     }
-
     componentDidRemount() {
-      this.subscribed = true; // Use setTimeout to avoid incorrect timing of events.
+      this.subscribed = true;
+
+      // Use setTimeout to avoid incorrect timing of events.
       // React will unmount and mount components in DOM order.
       // This means a new component can be mounted before an old one is unmounted.
       // ACF shares $el across new/old components which is un-React-like.
       // This timout ensures that unmounting occurs before remounting.
-
       setTimeout(() => {
         acf.doAction('remount', this.state.$el);
       });
     }
-
     componentWillMove() {
       acf.doAction('unmount', this.state.$el);
       setTimeout(() => {
         acf.doAction('remount', this.state.$el);
       });
     }
-
   }
+
   /**
    * BlockForm Class.
    *
@@ -959,26 +907,17 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	string id the block id.
    * @return	void
    */
-
-
   class BlockForm extends DynamicHTML {
     setup(props) {
       this.id = `BlockForm-${props.attributes.id}`;
     }
-
     fetch() {
       // Extract props.
       const {
         attributes
-      } = this.props; // Try preloaded data first.
+      } = this.props;
 
-      const preloaded = this.maybePreload(attributes.id);
-
-      if (preloaded) {
-        return;
-      } // Request AJAX and update HTML on complete.
-
-
+      // Request AJAX and update HTML on complete.
       fetchBlock({
         attributes: attributes,
         query: {
@@ -988,22 +927,22 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
         this.setHtml(json.data.form);
       });
     }
-
     componentDidAppend() {
-      super.componentDidAppend(); // Extract props.
+      super.componentDidAppend();
 
+      // Extract props.
       const {
         attributes,
         setAttributes
       } = this.props;
       const {
         $el
-      } = this.state; // Callback for updating block data.
+      } = this.state;
 
+      // Callback for updating block data.
       function serializeData() {
         let silent = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
         const data = acf.serialize($el, `acf-${attributes.id}`);
-
         if (silent) {
           attributes.data = data;
         } else {
@@ -1011,22 +950,23 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
             data: data
           });
         }
-      } // Add events.
+      }
 
-
+      // Add events.
       var timeout = false;
       $el.on('change keyup', function () {
         clearTimeout(timeout);
         timeout = setTimeout(serializeData, 300);
-      }); // Ensure newly added block is saved with data.
-      // Do it silently to avoid triggering a preview render.
+      });
 
+      // Ensure newly added block is saved with data.
+      // Do it silently to avoid triggering a preview render.
       if (!attributes.data) {
         serializeData(true);
       }
     }
-
   }
+
   /**
    * BlockPreview Class.
    *
@@ -1038,17 +978,14 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	string id the block id.
    * @return	void
    */
-
-
   class BlockPreview extends DynamicHTML {
     setup(props) {
       this.id = `BlockPreview-${props.attributes.id}`;
       var blockType = getBlockType(props.name);
-
       if (blockType.supports.jsx) {
         this.renderMethod = 'jsx';
-      } //console.log('setup', this.id);
-
+      }
+      //console.log('setup', this.id);
     }
 
     fetch() {
@@ -1056,19 +993,14 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
       const {
         attributes = this.props.attributes,
         delay = 0
-      } = args; // Remember attributes used to fetch HTML.
+      } = args;
 
+      // Remember attributes used to fetch HTML.
       this.setState({
         prevAttributes: attributes
-      }); // Try preloaded data first.
+      });
 
-      const preloaded = this.maybePreload(attributes.id);
-
-      if (preloaded) {
-        return;
-      } // Request AJAX and update HTML on complete.
-
-
+      // Request AJAX and update HTML on complete.
       fetchBlock({
         attributes: attributes,
         query: {
@@ -1076,84 +1008,82 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
         },
         delay: delay
       }).done(json => {
-        this.setHtml(json.data.preview);
+        this.setHtml('<div class="acf-block-preview">' + json.data.preview + '</div>');
       });
     }
-
     componentDidAppend() {
-      super.componentDidAppend(); // Extract props.
+      super.componentDidAppend();
 
+      // Extract props.
       const {
         attributes
       } = this.props;
       const {
         $el
-      } = this.state; // Generate action friendly type.
+      } = this.state;
 
-      const type = attributes.name.replace('acf/', ''); // Do action.
+      // Generate action friendly type.
+      const type = attributes.name.replace('acf/', '');
 
+      // Do action.
       acf.doAction('render_block_preview', $el, attributes);
       acf.doAction(`render_block_preview/type=${type}`, $el, attributes);
     }
-
     shouldComponentUpdate(nextProps, nextState) {
       const nextAttributes = nextProps.attributes;
-      const thisAttributes = this.props.attributes; // Update preview if block data has changed.
+      const thisAttributes = this.props.attributes;
 
+      // Update preview if block data has changed.
       if (!compareObjects(nextAttributes, thisAttributes)) {
-        let delay = 0; // Delay fetch when editing className or anchor to simulate conscistent logic to custom fields.
+        let delay = 0;
 
+        // Delay fetch when editing className or anchor to simulate conscistent logic to custom fields.
         if (nextAttributes.className !== thisAttributes.className) {
           delay = 300;
         }
-
         if (nextAttributes.anchor !== thisAttributes.anchor) {
           delay = 300;
         }
-
         this.fetch({
           attributes: nextAttributes,
           delay: delay
         });
       }
-
       return super.shouldComponentUpdate(nextProps, nextState);
     }
-
     componentDidRemount() {
-      super.componentDidRemount(); // Update preview if data has changed since last render (changing from "edit" to "preview").
+      super.componentDidRemount();
 
+      // Update preview if data has changed since last render (changing from "edit" to "preview").
       if (!compareObjects(this.state.prevAttributes, this.props.attributes)) {
         //console.log('componentDidRemount', this.id);
         this.fetch();
       }
     }
-
   }
+
   /**
    * Initializes ACF Blocks logic and registration.
    *
    * @since 5.9.0
    */
-
-
   function initialize() {
     // Add support for WordPress versions before 5.2.
     if (!wp.blockEditor) {
       wp.blockEditor = wp.editor;
-    } // Register block types.
+    }
 
-
+    // Register block types.
     var blockTypes = acf.get('blockTypes');
-
     if (blockTypes) {
       blockTypes.map(registerBlockType);
     }
-  } // Run the initialize callback during the "prepare" action.
+  }
+
+  // Run the initialize callback during the "prepare" action.
   // This ensures that all localized data is available and that blocks are registered before the WP editor has been instantiated.
-
-
   acf.addAction('prepare', initialize);
+
   /**
    * Returns a valid vertical alignment.
    *
@@ -1163,12 +1093,12 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	string align A vertical alignment.
    * @return	string
    */
-
   function validateVerticalAlignment(align) {
     const ALIGNMENTS = ['top', 'center', 'bottom'];
     const DEFAULT = 'top';
     return ALIGNMENTS.includes(align) ? align : DEFAULT;
   }
+
   /**
    * Returns a valid horizontal alignment.
    *
@@ -1178,13 +1108,12 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	string align A horizontal alignment.
    * @return	string
    */
-
-
   function validateHorizontalAlignment(align) {
     const ALIGNMENTS = ['left', 'center', 'right'];
     const DEFAULT = acf.get('rtl') ? 'right' : 'left';
     return ALIGNMENTS.includes(align) ? align : DEFAULT;
   }
+
   /**
    * Returns a valid matrix alignment.
    *
@@ -1196,27 +1125,24 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	string align A matrix alignment.
    * @return	string
    */
-
-
   function validateMatrixAlignment(align) {
     const DEFAULT = 'center center';
-
     if (align) {
       const [y, x] = align.split(' ');
       return validateVerticalAlignment(y) + ' ' + validateHorizontalAlignment(x);
     }
-
     return DEFAULT;
-  } // Dependencies.
+  }
 
-
+  // Dependencies.
   const {
     AlignmentToolbar,
     BlockVerticalAlignmentToolbar
   } = wp.blockEditor;
-  const BlockAlignmentMatrixToolbar = wp.blockEditor.__experimentalBlockAlignmentMatrixToolbar || wp.blockEditor.BlockAlignmentMatrixToolbar; // Gutenberg v10.x begins transition from Toolbar components to Control components.
-
+  const BlockAlignmentMatrixToolbar = wp.blockEditor.__experimentalBlockAlignmentMatrixToolbar || wp.blockEditor.BlockAlignmentMatrixToolbar;
+  // Gutenberg v10.x begins transition from Toolbar components to Control components.
   const BlockAlignmentMatrixControl = wp.blockEditor.__experimentalBlockAlignmentMatrixControl || wp.blockEditor.BlockAlignmentMatrixControl;
+
   /**
    * Appends extra attributes for block types that support align_content.
    *
@@ -1226,13 +1152,13 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	object attributes The block type attributes.
    * @return	object
    */
-
   function withAlignContentAttributes(attributes) {
     attributes.align_content = {
       type: 'string'
     };
     return attributes;
   }
+
   /**
    * A higher order component adding align_content editing functionality.
    *
@@ -1243,34 +1169,31 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	object blockType The block type settings.
    * @return	component
    */
-
-
   function withAlignContentComponent(OriginalBlockEdit, blockType) {
     // Determine alignment vars
     let type = blockType.supports.align_content;
     let AlignmentComponent, validateAlignment;
-
     switch (type) {
       case 'matrix':
         AlignmentComponent = BlockAlignmentMatrixControl || BlockAlignmentMatrixToolbar;
         validateAlignment = validateMatrixAlignment;
         break;
-
       default:
         AlignmentComponent = BlockVerticalAlignmentToolbar;
         validateAlignment = validateVerticalAlignment;
         break;
-    } // Ensure alignment component exists.
+    }
 
-
+    // Ensure alignment component exists.
     if (AlignmentComponent === undefined) {
       console.warn(`The "${type}" alignment component was not found.`);
       return OriginalBlockEdit;
-    } // Ensure correct block attribute data is sent in intial preview AJAX request.
+    }
 
+    // Ensure correct block attribute data is sent in intial preview AJAX request.
+    blockType.align_content = validateAlignment(blockType.align_content);
 
-    blockType.align_content = validateAlignment(blockType.align_content); // Return wrapped component.
-
+    // Return wrapped component.
     return class WrappedBlockEdit extends Component {
       render() {
         const {
@@ -1280,13 +1203,11 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
         const {
           align_content
         } = attributes;
-
         function onChangeAlignContent(align_content) {
           setAttributes({
             align_content: validateAlignment(align_content)
           });
         }
-
         return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(Fragment, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockControls, {
           group: "block"
         }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(AlignmentComponent, {
@@ -1295,9 +1216,9 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
           onChange: onChangeAlignContent
         })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(OriginalBlockEdit, this.props));
       }
-
     };
   }
+
   /**
    * Appends extra attributes for block types that support align_text.
    *
@@ -1307,14 +1228,13 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	object attributes The block type attributes.
    * @return	object
    */
-
-
   function withAlignTextAttributes(attributes) {
     attributes.align_text = {
       type: 'string'
     };
     return attributes;
   }
+
   /**
    * A higher order component adding align_text editing functionality.
    *
@@ -1325,13 +1245,13 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
    * @param	object blockType The block type settings.
    * @return	component
    */
-
-
   function withAlignTextComponent(OriginalBlockEdit, blockType) {
-    const validateAlignment = validateHorizontalAlignment; // Ensure correct block attribute data is sent in intial preview AJAX request.
+    const validateAlignment = validateHorizontalAlignment;
 
-    blockType.align_text = validateAlignment(blockType.align_text); // Return wrapped component.
+    // Ensure correct block attribute data is sent in intial preview AJAX request.
+    blockType.align_text = validateAlignment(blockType.align_text);
 
+    // Return wrapped component.
     return class WrappedBlockEdit extends Component {
       render() {
         const {
@@ -1341,19 +1261,16 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
         const {
           align_text
         } = attributes;
-
         function onChangeAlignText(align_text) {
           setAttributes({
             align_text: validateAlignment(align_text)
           });
         }
-
         return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(Fragment, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockControls, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(AlignmentToolbar, {
           value: validateAlignment(align_text),
           onChange: onChangeAlignText
         })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(OriginalBlockEdit, this.props));
       }
-
     };
   }
 })(jQuery);
@@ -1364,7 +1281,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 /*!****************************************************************************!*\
   !*** ./src/advanced-custom-fields-pro/assets/src/js/pro/_acf-jsx-names.js ***!
   \****************************************************************************/
-/***/ (() => {
+/***/ (function() {
 
 (function ($, undefined) {
   acf.jsxNameReplacements = {
@@ -1462,6 +1379,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
     fontvariant: 'fontVariant',
     fontweight: 'fontWeight',
     for: 'htmlFor',
+    foreignobject: 'foreignObject',
     formaction: 'formAction',
     formenctype: 'formEncType',
     formmethod: 'formMethod',
@@ -1673,115 +1591,16 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 /***/ }),
 
-/***/ "./node_modules/object-assign/index.js":
-/*!*********************************************!*\
-  !*** ./node_modules/object-assign/index.js ***!
-  \*********************************************/
-/***/ ((module) => {
-
-"use strict";
-/*
-object-assign
-(c) Sindre Sorhus
-@license MIT
-*/
-
-
-/* eslint-disable no-unused-vars */
-var getOwnPropertySymbols = Object.getOwnPropertySymbols;
-var hasOwnProperty = Object.prototype.hasOwnProperty;
-var propIsEnumerable = Object.prototype.propertyIsEnumerable;
-
-function toObject(val) {
-	if (val === null || val === undefined) {
-		throw new TypeError('Object.assign cannot be called with null or undefined');
-	}
-
-	return Object(val);
-}
-
-function shouldUseNative() {
-	try {
-		if (!Object.assign) {
-			return false;
-		}
-
-		// Detect buggy property enumeration order in older V8 versions.
-
-		// https://bugs.chromium.org/p/v8/issues/detail?id=4118
-		var test1 = new String('abc');  // eslint-disable-line no-new-wrappers
-		test1[5] = 'de';
-		if (Object.getOwnPropertyNames(test1)[0] === '5') {
-			return false;
-		}
-
-		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
-		var test2 = {};
-		for (var i = 0; i < 10; i++) {
-			test2['_' + String.fromCharCode(i)] = i;
-		}
-		var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
-			return test2[n];
-		});
-		if (order2.join('') !== '0123456789') {
-			return false;
-		}
-
-		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
-		var test3 = {};
-		'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
-			test3[letter] = letter;
-		});
-		if (Object.keys(Object.assign({}, test3)).join('') !==
-				'abcdefghijklmnopqrst') {
-			return false;
-		}
-
-		return true;
-	} catch (err) {
-		// We don't expect any of the above to throw, but better to be safe.
-		return false;
-	}
-}
-
-module.exports = shouldUseNative() ? Object.assign : function (target, source) {
-	var from;
-	var to = toObject(target);
-	var symbols;
-
-	for (var s = 1; s < arguments.length; s++) {
-		from = Object(arguments[s]);
-
-		for (var key in from) {
-			if (hasOwnProperty.call(from, key)) {
-				to[key] = from[key];
-			}
-		}
-
-		if (getOwnPropertySymbols) {
-			symbols = getOwnPropertySymbols(from);
-			for (var i = 0; i < symbols.length; i++) {
-				if (propIsEnumerable.call(from, symbols[i])) {
-					to[symbols[i]] = from[symbols[i]];
-				}
-			}
-		}
-	}
-
-	return to;
-};
-
-
-/***/ }),
-
 /***/ "./node_modules/react/cjs/react.development.js":
 /*!*****************************************************!*\
   !*** ./node_modules/react/cjs/react.development.js ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/** @license React v17.0.2
+/* module decorator */ module = __webpack_require__.nmd(module);
+/**
+ * @license React
  * react.development.js
  *
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -1794,64 +1613,37 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 if (true) {
   (function() {
-'use strict';
 
-var _assign = __webpack_require__(/*! object-assign */ "./node_modules/object-assign/index.js");
+          'use strict';
 
-// TODO: this is special because it gets imported during build.
-var ReactVersion = '17.0.2';
+/* global __REACT_DEVTOOLS_GLOBAL_HOOK__ */
+if (
+  typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined' &&
+  typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart ===
+    'function'
+) {
+  __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(new Error());
+}
+          var ReactVersion = '18.2.0';
 
 // ATTENTION
 // When adding new symbols to this file,
 // Please consider also adding to 'react-devtools-shared/src/backend/ReactSymbols'
-// The Symbol used to tag the ReactElement-like types. If there is no native Symbol
-// nor polyfill, then a plain number is used for performance.
-var REACT_ELEMENT_TYPE = 0xeac7;
-var REACT_PORTAL_TYPE = 0xeaca;
-exports.Fragment = 0xeacb;
-exports.StrictMode = 0xeacc;
-exports.Profiler = 0xead2;
-var REACT_PROVIDER_TYPE = 0xeacd;
-var REACT_CONTEXT_TYPE = 0xeace;
-var REACT_FORWARD_REF_TYPE = 0xead0;
-exports.Suspense = 0xead1;
-var REACT_SUSPENSE_LIST_TYPE = 0xead8;
-var REACT_MEMO_TYPE = 0xead3;
-var REACT_LAZY_TYPE = 0xead4;
-var REACT_BLOCK_TYPE = 0xead9;
-var REACT_SERVER_BLOCK_TYPE = 0xeada;
-var REACT_FUNDAMENTAL_TYPE = 0xead5;
-var REACT_SCOPE_TYPE = 0xead7;
-var REACT_OPAQUE_ID_TYPE = 0xeae0;
-var REACT_DEBUG_TRACING_MODE_TYPE = 0xeae1;
-var REACT_OFFSCREEN_TYPE = 0xeae2;
-var REACT_LEGACY_HIDDEN_TYPE = 0xeae3;
-
-if (typeof Symbol === 'function' && Symbol.for) {
-  var symbolFor = Symbol.for;
-  REACT_ELEMENT_TYPE = symbolFor('react.element');
-  REACT_PORTAL_TYPE = symbolFor('react.portal');
-  exports.Fragment = symbolFor('react.fragment');
-  exports.StrictMode = symbolFor('react.strict_mode');
-  exports.Profiler = symbolFor('react.profiler');
-  REACT_PROVIDER_TYPE = symbolFor('react.provider');
-  REACT_CONTEXT_TYPE = symbolFor('react.context');
-  REACT_FORWARD_REF_TYPE = symbolFor('react.forward_ref');
-  exports.Suspense = symbolFor('react.suspense');
-  REACT_SUSPENSE_LIST_TYPE = symbolFor('react.suspense_list');
-  REACT_MEMO_TYPE = symbolFor('react.memo');
-  REACT_LAZY_TYPE = symbolFor('react.lazy');
-  REACT_BLOCK_TYPE = symbolFor('react.block');
-  REACT_SERVER_BLOCK_TYPE = symbolFor('react.server.block');
-  REACT_FUNDAMENTAL_TYPE = symbolFor('react.fundamental');
-  REACT_SCOPE_TYPE = symbolFor('react.scope');
-  REACT_OPAQUE_ID_TYPE = symbolFor('react.opaque.id');
-  REACT_DEBUG_TRACING_MODE_TYPE = symbolFor('react.debug_trace_mode');
-  REACT_OFFSCREEN_TYPE = symbolFor('react.offscreen');
-  REACT_LEGACY_HIDDEN_TYPE = symbolFor('react.legacy_hidden');
-}
-
-var MAYBE_ITERATOR_SYMBOL = typeof Symbol === 'function' && Symbol.iterator;
+// The Symbol used to tag the ReactElement-like types.
+var REACT_ELEMENT_TYPE = Symbol.for('react.element');
+var REACT_PORTAL_TYPE = Symbol.for('react.portal');
+var REACT_FRAGMENT_TYPE = Symbol.for('react.fragment');
+var REACT_STRICT_MODE_TYPE = Symbol.for('react.strict_mode');
+var REACT_PROFILER_TYPE = Symbol.for('react.profiler');
+var REACT_PROVIDER_TYPE = Symbol.for('react.provider');
+var REACT_CONTEXT_TYPE = Symbol.for('react.context');
+var REACT_FORWARD_REF_TYPE = Symbol.for('react.forward_ref');
+var REACT_SUSPENSE_TYPE = Symbol.for('react.suspense');
+var REACT_SUSPENSE_LIST_TYPE = Symbol.for('react.suspense_list');
+var REACT_MEMO_TYPE = Symbol.for('react.memo');
+var REACT_LAZY_TYPE = Symbol.for('react.lazy');
+var REACT_OFFSCREEN_TYPE = Symbol.for('react.offscreen');
+var MAYBE_ITERATOR_SYMBOL = Symbol.iterator;
 var FAUX_ITERATOR_SYMBOL = '@@iterator';
 function getIteratorFn(maybeIterable) {
   if (maybeIterable === null || typeof maybeIterable !== 'object') {
@@ -1883,7 +1675,14 @@ var ReactCurrentDispatcher = {
  * should suspend for if it needs to.
  */
 var ReactCurrentBatchConfig = {
-  transition: 0
+  transition: null
+};
+
+var ReactCurrentActQueue = {
+  current: null,
+  // Used to reproduce behavior of `batchedUpdates` in legacy mode.
+  isBatchingLegacy: false,
+  didScheduleLegacyUpdate: false
 };
 
 /**
@@ -1936,24 +1735,27 @@ function setExtraStackFrame(stack) {
   };
 }
 
-/**
- * Used by act() to track whether you're inside an act() scope.
- */
-var IsSomeRendererActing = {
-  current: false
-};
+// -----------------------------------------------------------------------------
+
+var enableScopeAPI = false; // Experimental Create Event Handle API.
+var enableCacheElement = false;
+var enableTransitionTracing = false; // No known bugs, but needs performance testing
+
+var enableLegacyHidden = false; // Enables unstable_avoidThisFallback feature in Fiber
+// stuff. Intended to enable React core members to more easily debug scheduling
+// issues in DEV builds.
+
+var enableDebugTracing = false; // Track which Fiber(s) schedule render work.
 
 var ReactSharedInternals = {
   ReactCurrentDispatcher: ReactCurrentDispatcher,
   ReactCurrentBatchConfig: ReactCurrentBatchConfig,
-  ReactCurrentOwner: ReactCurrentOwner,
-  IsSomeRendererActing: IsSomeRendererActing,
-  // Used by renderers to avoid bundling object-assign twice in UMD bundles:
-  assign: _assign
+  ReactCurrentOwner: ReactCurrentOwner
 };
 
 {
   ReactSharedInternals.ReactDebugCurrentFrame = ReactDebugCurrentFrame;
+  ReactSharedInternals.ReactCurrentActQueue = ReactCurrentActQueue;
 }
 
 // by calls to these methods by a Babel plugin.
@@ -1963,20 +1765,24 @@ var ReactSharedInternals = {
 
 function warn(format) {
   {
-    for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      args[_key - 1] = arguments[_key];
-    }
+    {
+      for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
+      }
 
-    printWarning('warn', format, args);
+      printWarning('warn', format, args);
+    }
   }
 }
 function error(format) {
   {
-    for (var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
-      args[_key2 - 1] = arguments[_key2];
-    }
+    {
+      for (var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+        args[_key2 - 1] = arguments[_key2];
+      }
 
-    printWarning('error', format, args);
+      printWarning('error', format, args);
+    }
   }
 }
 
@@ -1990,10 +1796,11 @@ function printWarning(level, format, args) {
     if (stack !== '') {
       format += '%s';
       args = args.concat([stack]);
-    }
+    } // eslint-disable-next-line react-internal/safe-string-coercion
+
 
     var argsWithFormat = args.map(function (item) {
-      return '' + item;
+      return String(item);
     }); // Careful: RN currently depends on this prefix
 
     argsWithFormat.unshift('Warning: ' + format); // We intentionally don't use spread (or .apply) directly because it
@@ -2091,6 +1898,8 @@ var ReactNoopUpdateQueue = {
   }
 };
 
+var assign = Object.assign;
+
 var emptyObject = {};
 
 {
@@ -2139,10 +1948,8 @@ Component.prototype.isReactComponent = {};
  */
 
 Component.prototype.setState = function (partialState, callback) {
-  if (!(typeof partialState === 'object' || typeof partialState === 'function' || partialState == null)) {
-    {
-      throw Error( "setState(...): takes an object of state variables to update or a function which returns an object of state variables." );
-    }
+  if (typeof partialState !== 'object' && typeof partialState !== 'function' && partialState != null) {
+    throw new Error('setState(...): takes an object of state variables to update or a ' + 'function which returns an object of state variables.');
   }
 
   this.updater.enqueueSetState(this, partialState, callback, 'setState');
@@ -2214,8 +2021,7 @@ function PureComponent(props, context, updater) {
 var pureComponentPrototype = PureComponent.prototype = new ComponentDummy();
 pureComponentPrototype.constructor = PureComponent; // Avoid an extra prototype jump for these methods.
 
-_assign(pureComponentPrototype, Component.prototype);
-
+assign(pureComponentPrototype, Component.prototype);
 pureComponentPrototype.isPureReactComponent = true;
 
 // an immutable object with a single mutable value
@@ -2231,16 +2037,97 @@ function createRef() {
   return refObject;
 }
 
-function getWrappedName(outerType, innerType, wrapperName) {
-  var functionName = innerType.displayName || innerType.name || '';
-  return outerType.displayName || (functionName !== '' ? wrapperName + "(" + functionName + ")" : wrapperName);
+var isArrayImpl = Array.isArray; // eslint-disable-next-line no-redeclare
+
+function isArray(a) {
+  return isArrayImpl(a);
 }
+
+/*
+ * The `'' + value` pattern (used in in perf-sensitive code) throws for Symbol
+ * and Temporal.* types. See https://github.com/facebook/react/pull/22064.
+ *
+ * The functions in this module will throw an easier-to-understand,
+ * easier-to-debug exception with a clear errors message message explaining the
+ * problem. (Instead of a confusing exception thrown inside the implementation
+ * of the `value` object).
+ */
+// $FlowFixMe only called in DEV, so void return is not possible.
+function typeName(value) {
+  {
+    // toStringTag is needed for namespaced types like Temporal.Instant
+    var hasToStringTag = typeof Symbol === 'function' && Symbol.toStringTag;
+    var type = hasToStringTag && value[Symbol.toStringTag] || value.constructor.name || 'Object';
+    return type;
+  }
+} // $FlowFixMe only called in DEV, so void return is not possible.
+
+
+function willCoercionThrow(value) {
+  {
+    try {
+      testStringCoercion(value);
+      return false;
+    } catch (e) {
+      return true;
+    }
+  }
+}
+
+function testStringCoercion(value) {
+  // If you ended up here by following an exception call stack, here's what's
+  // happened: you supplied an object or symbol value to React (as a prop, key,
+  // DOM attribute, CSS property, string ref, etc.) and when React tried to
+  // coerce it to a string using `'' + value`, an exception was thrown.
+  //
+  // The most common types that will cause this exception are `Symbol` instances
+  // and Temporal objects like `Temporal.Instant`. But any object that has a
+  // `valueOf` or `[Symbol.toPrimitive]` method that throws will also cause this
+  // exception. (Library authors do this to prevent users from using built-in
+  // numeric operators like `+` or comparison operators like `>=` because custom
+  // methods are needed to perform accurate arithmetic or comparison.)
+  //
+  // To fix the problem, coerce this object or symbol value to a string before
+  // passing it to React. The most reliable way is usually `String(value)`.
+  //
+  // To find which value is throwing, check the browser or debugger console.
+  // Before this exception was thrown, there should be `console.error` output
+  // that shows the type (Symbol, Temporal.PlainDate, etc.) that caused the
+  // problem and how that type was used: key, atrribute, input value prop, etc.
+  // In most cases, this console output also shows the component and its
+  // ancestor components where the exception happened.
+  //
+  // eslint-disable-next-line react-internal/safe-string-coercion
+  return '' + value;
+}
+function checkKeyStringCoercion(value) {
+  {
+    if (willCoercionThrow(value)) {
+      error('The provided key is an unsupported type %s.' + ' This value must be coerced to a string before before using it here.', typeName(value));
+
+      return testStringCoercion(value); // throw (to help callers find troubleshooting comments)
+    }
+  }
+}
+
+function getWrappedName(outerType, innerType, wrapperName) {
+  var displayName = outerType.displayName;
+
+  if (displayName) {
+    return displayName;
+  }
+
+  var functionName = innerType.displayName || innerType.name || '';
+  return functionName !== '' ? wrapperName + "(" + functionName + ")" : wrapperName;
+} // Keep in sync with react-reconciler/getComponentNameFromFiber
+
 
 function getContextName(type) {
   return type.displayName || 'Context';
-}
+} // Note that the reconciler package should generally prefer to use getComponentNameFromFiber() instead.
 
-function getComponentName(type) {
+
+function getComponentNameFromType(type) {
   if (type == null) {
     // Host root, text node or just invalid type.
     return null;
@@ -2248,7 +2135,7 @@ function getComponentName(type) {
 
   {
     if (typeof type.tag === 'number') {
-      error('Received an unexpected object in getComponentName(). ' + 'This is likely a bug in React. Please file an issue.');
+      error('Received an unexpected object in getComponentNameFromType(). ' + 'This is likely a bug in React. Please file an issue.');
     }
   }
 
@@ -2261,23 +2148,24 @@ function getComponentName(type) {
   }
 
   switch (type) {
-    case exports.Fragment:
+    case REACT_FRAGMENT_TYPE:
       return 'Fragment';
 
     case REACT_PORTAL_TYPE:
       return 'Portal';
 
-    case exports.Profiler:
+    case REACT_PROFILER_TYPE:
       return 'Profiler';
 
-    case exports.StrictMode:
+    case REACT_STRICT_MODE_TYPE:
       return 'StrictMode';
 
-    case exports.Suspense:
+    case REACT_SUSPENSE_TYPE:
       return 'Suspense';
 
     case REACT_SUSPENSE_LIST_TYPE:
       return 'SuspenseList';
+
   }
 
   if (typeof type === 'object') {
@@ -2294,10 +2182,13 @@ function getComponentName(type) {
         return getWrappedName(type, type.render, 'ForwardRef');
 
       case REACT_MEMO_TYPE:
-        return getComponentName(type.type);
+        var outerName = type.displayName || null;
 
-      case REACT_BLOCK_TYPE:
-        return getComponentName(type._render);
+        if (outerName !== null) {
+          return outerName;
+        }
+
+        return getComponentNameFromType(type.type) || 'Memo';
 
       case REACT_LAZY_TYPE:
         {
@@ -2306,11 +2197,13 @@ function getComponentName(type) {
           var init = lazyComponent._init;
 
           try {
-            return getComponentName(init(payload));
+            return getComponentNameFromType(init(payload));
           } catch (x) {
             return null;
           }
         }
+
+      // eslint-disable-next-line no-fallthrough
     }
   }
 
@@ -2318,6 +2211,7 @@ function getComponentName(type) {
 }
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
+
 var RESERVED_PROPS = {
   key: true,
   ref: true,
@@ -2397,7 +2291,7 @@ function defineRefPropWarningGetter(props, displayName) {
 function warnIfStringRefCannotBeAutoConverted(config) {
   {
     if (typeof config.ref === 'string' && ReactCurrentOwner.current && config.__self && ReactCurrentOwner.current.stateNode !== config.__self) {
-      var componentName = getComponentName(ReactCurrentOwner.current.type);
+      var componentName = getComponentNameFromType(ReactCurrentOwner.current.type);
 
       if (!didWarnAboutStringRefs[componentName]) {
         error('Component "%s" contains the string ref "%s". ' + 'Support for string refs will be removed in a future major release. ' + 'This case cannot be automatically converted to an arrow function. ' + 'We ask you to manually fix this case by using useRef() or createRef() instead. ' + 'Learn more about using refs safely here: ' + 'https://reactjs.org/link/strict-mode-string-ref', componentName, config.ref);
@@ -2506,6 +2400,10 @@ function createElement(type, config, children) {
     }
 
     if (hasValidKey(config)) {
+      {
+        checkKeyStringCoercion(config.key);
+      }
+
       key = '' + config.key;
     }
 
@@ -2578,16 +2476,13 @@ function cloneAndReplaceKey(oldElement, newKey) {
  */
 
 function cloneElement(element, config, children) {
-  if (!!(element === null || element === undefined)) {
-    {
-      throw Error( "React.cloneElement(...): The argument must be a React element, but you passed " + element + "." );
-    }
+  if (element === null || element === undefined) {
+    throw new Error("React.cloneElement(...): The argument must be a React element, but you passed " + element + ".");
   }
 
   var propName; // Original props are copied
 
-  var props = _assign({}, element.props); // Reserved names are extracted
-
+  var props = assign({}, element.props); // Reserved names are extracted
 
   var key = element.key;
   var ref = element.ref; // Self is preserved since the owner is preserved.
@@ -2608,6 +2503,10 @@ function cloneElement(element, config, children) {
     }
 
     if (hasValidKey(config)) {
+      {
+        checkKeyStringCoercion(config.key);
+      }
+
       key = '' + config.key;
     } // Remaining properties override existing props
 
@@ -2706,6 +2605,10 @@ function getElementKey(element, index) {
   // that we don't block potential future ES APIs.
   if (typeof element === 'object' && element !== null && element.key != null) {
     // Explicit key
+    {
+      checkKeyStringCoercion(element.key);
+    }
+
     return escape('' + element.key);
   } // Implicit key determined by the index in the set
 
@@ -2749,7 +2652,7 @@ function mapIntoArray(children, array, escapedPrefix, nameSoFar, callback) {
 
     var childKey = nameSoFar === '' ? SEPARATOR + getElementKey(_child, 0) : nameSoFar;
 
-    if (Array.isArray(mappedChild)) {
+    if (isArray(mappedChild)) {
       var escapedChildKey = '';
 
       if (childKey != null) {
@@ -2761,10 +2664,20 @@ function mapIntoArray(children, array, escapedPrefix, nameSoFar, callback) {
       });
     } else if (mappedChild != null) {
       if (isValidElement(mappedChild)) {
+        {
+          // The `if` statement here prevents auto-disabling of the safe
+          // coercion ESLint rule, so we must manually disable it below.
+          // $FlowFixMe Flow incorrectly thinks React.Portal doesn't have a key
+          if (mappedChild.key && (!_child || _child.key !== mappedChild.key)) {
+            checkKeyStringCoercion(mappedChild.key);
+          }
+        }
+
         mappedChild = cloneAndReplaceKey(mappedChild, // Keep both the (mapped) and old keys if they differ, just as
         // traverseAllChildren used to do for objects as children
         escapedPrefix + ( // $FlowFixMe Flow incorrectly thinks React.Portal doesn't have a key
         mappedChild.key && (!_child || _child.key !== mappedChild.key) ? // $FlowFixMe Flow incorrectly thinks existing element's key can be a number
+        // eslint-disable-next-line react-internal/safe-string-coercion
         escapeUserProvidedKey('' + mappedChild.key) + '/' : '') + childKey);
       }
 
@@ -2780,7 +2693,7 @@ function mapIntoArray(children, array, escapedPrefix, nameSoFar, callback) {
 
   var nextNamePrefix = nameSoFar === '' ? SEPARATOR : nameSoFar + SUBSEPARATOR;
 
-  if (Array.isArray(children)) {
+  if (isArray(children)) {
     for (var i = 0; i < children.length; i++) {
       child = children[i];
       nextName = nextNamePrefix + getElementKey(child, i);
@@ -2813,13 +2726,9 @@ function mapIntoArray(children, array, escapedPrefix, nameSoFar, callback) {
         subtreeCount += mapIntoArray(child, array, escapedPrefix, nextName, callback);
       }
     } else if (type === 'object') {
-      var childrenString = '' + children;
-
-      {
-        {
-          throw Error( "Objects are not valid as a React child (found: " + (childrenString === '[object Object]' ? 'object with keys {' + Object.keys(children).join(', ') + '}' : childrenString) + "). If you meant to render a collection of children, use an array instead." );
-        }
-      }
+      // eslint-disable-next-line react-internal/safe-string-coercion
+      var childrenString = String(children);
+      throw new Error("Objects are not valid as a React child (found: " + (childrenString === '[object Object]' ? 'object with keys {' + Object.keys(children).join(', ') + '}' : childrenString) + "). " + 'If you meant to render a collection of children, use an array ' + 'instead.');
     }
   }
 
@@ -2918,28 +2827,17 @@ function toArray(children) {
 
 function onlyChild(children) {
   if (!isValidElement(children)) {
-    {
-      throw Error( "React.Children.only expected to receive a single React element child." );
-    }
+    throw new Error('React.Children.only expected to receive a single React element child.');
   }
 
   return children;
 }
 
-function createContext(defaultValue, calculateChangedBits) {
-  if (calculateChangedBits === undefined) {
-    calculateChangedBits = null;
-  } else {
-    {
-      if (calculateChangedBits !== null && typeof calculateChangedBits !== 'function') {
-        error('createContext: Expected the optional second argument to be a ' + 'function. Instead received: %s', calculateChangedBits);
-      }
-    }
-  }
-
+function createContext(defaultValue) {
+  // TODO: Second argument used to be an optional `calculateChangedBits`
+  // function. Warn to reserve for future use?
   var context = {
     $$typeof: REACT_CONTEXT_TYPE,
-    _calculateChangedBits: calculateChangedBits,
     // As a workaround to support multiple concurrent renderers, we categorize
     // some renderers as primary and others as secondary. We only expect
     // there to be two concurrent renderers at most: React Native (primary) and
@@ -2952,7 +2850,10 @@ function createContext(defaultValue, calculateChangedBits) {
     _threadCount: 0,
     // These are circular
     Provider: null,
-    Consumer: null
+    Consumer: null,
+    // Add these to use same hidden class in VM as ServerContext
+    _defaultValue: null,
+    _globalName: null
   };
   context.Provider = {
     $$typeof: REACT_PROVIDER_TYPE,
@@ -2968,8 +2869,7 @@ function createContext(defaultValue, calculateChangedBits) {
     // warn for the incorrect usage of Context as a Consumer.
     var Consumer = {
       $$typeof: REACT_CONTEXT_TYPE,
-      _context: context,
-      _calculateChangedBits: context._calculateChangedBits
+      _context: context
     }; // $FlowFixMe: Flow complains about not setting a value, which is intentional here
 
     Object.defineProperties(Consumer, {
@@ -3056,38 +2956,54 @@ function lazyInitializer(payload) {
   if (payload._status === Uninitialized) {
     var ctor = payload._result;
     var thenable = ctor(); // Transition to the next state.
+    // This might throw either because it's missing or throws. If so, we treat it
+    // as still uninitialized and try again next time. Which is the same as what
+    // happens if the ctor or any wrappers processing the ctor throws. This might
+    // end up fixing it if the resolution was a concurrency bug.
 
-    var pending = payload;
-    pending._status = Pending;
-    pending._result = thenable;
     thenable.then(function (moduleObject) {
-      if (payload._status === Pending) {
-        var defaultExport = moduleObject.default;
-
-        {
-          if (defaultExport === undefined) {
-            error('lazy: Expected the result of a dynamic import() call. ' + 'Instead received: %s\n\nYour code should look like: \n  ' + // Break up imports to avoid accidentally parsing them as dependencies.
-            'const MyComponent = lazy(() => imp' + "ort('./MyComponent'))", moduleObject);
-          }
-        } // Transition to the next state.
-
-
+      if (payload._status === Pending || payload._status === Uninitialized) {
+        // Transition to the next state.
         var resolved = payload;
         resolved._status = Resolved;
-        resolved._result = defaultExport;
+        resolved._result = moduleObject;
       }
     }, function (error) {
-      if (payload._status === Pending) {
+      if (payload._status === Pending || payload._status === Uninitialized) {
         // Transition to the next state.
         var rejected = payload;
         rejected._status = Rejected;
         rejected._result = error;
       }
     });
+
+    if (payload._status === Uninitialized) {
+      // In case, we're still uninitialized, then we're waiting for the thenable
+      // to resolve. Set it as pending in the meantime.
+      var pending = payload;
+      pending._status = Pending;
+      pending._result = thenable;
+    }
   }
 
   if (payload._status === Resolved) {
-    return payload._result;
+    var moduleObject = payload._result;
+
+    {
+      if (moduleObject === undefined) {
+        error('lazy: Expected the result of a dynamic imp' + 'ort() call. ' + 'Instead received: %s\n\nYour code should look like: \n  ' + // Break up imports to avoid accidentally parsing them as dependencies.
+        'const MyComponent = lazy(() => imp' + "ort('./MyComponent'))\n\n" + 'Did you accidentally put curly braces around the import?', moduleObject);
+      }
+    }
+
+    {
+      if (!('default' in moduleObject)) {
+        error('lazy: Expected the result of a dynamic imp' + 'ort() call. ' + 'Instead received: %s\n\nYour code should look like: \n  ' + // Break up imports to avoid accidentally parsing them as dependencies.
+        'const MyComponent = lazy(() => imp' + "ort('./MyComponent'))", moduleObject);
+      }
+    }
+
+    return moduleObject.default;
   } else {
     throw payload._result;
   }
@@ -3096,7 +3012,7 @@ function lazyInitializer(payload) {
 function lazy(ctor) {
   var payload = {
     // We use these fields to store the result.
-    _status: -1,
+    _status: Uninitialized,
     _result: ctor
   };
   var lazyType = {
@@ -3182,9 +3098,15 @@ function forwardRef(render) {
         return ownName;
       },
       set: function (name) {
-        ownName = name;
+        ownName = name; // The inner component shouldn't inherit this display name in most cases,
+        // because the component may be used elsewhere.
+        // But it's nice for anonymous functions to inherit the name,
+        // so that our component-stack generation logic will display their frames.
+        // An anonymous function generally suggests a pattern like:
+        //   React.forwardRef((props, ref) => {...});
+        // This kind of inner function is not used elsewhere so the side effect is okay.
 
-        if (render.displayName == null) {
+        if (!render.name && !render.displayName) {
           render.displayName = name;
         }
       }
@@ -3194,9 +3116,11 @@ function forwardRef(render) {
   return elementType;
 }
 
-// Filter certain DOM attributes (e.g. src, href) if their values are empty strings.
+var REACT_MODULE_REFERENCE;
 
-var enableScopeAPI = false; // Experimental Create Event Handle API.
+{
+  REACT_MODULE_REFERENCE = Symbol.for('react.module.reference');
+}
 
 function isValidElementType(type) {
   if (typeof type === 'string' || typeof type === 'function') {
@@ -3204,12 +3128,16 @@ function isValidElementType(type) {
   } // Note: typeof might be other than 'symbol' or 'number' (e.g. if it's a polyfill).
 
 
-  if (type === exports.Fragment || type === exports.Profiler || type === REACT_DEBUG_TRACING_MODE_TYPE || type === exports.StrictMode || type === exports.Suspense || type === REACT_SUSPENSE_LIST_TYPE || type === REACT_LEGACY_HIDDEN_TYPE || enableScopeAPI ) {
+  if (type === REACT_FRAGMENT_TYPE || type === REACT_PROFILER_TYPE || enableDebugTracing  || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || type === REACT_SUSPENSE_LIST_TYPE || enableLegacyHidden  || type === REACT_OFFSCREEN_TYPE || enableScopeAPI  || enableCacheElement  || enableTransitionTracing ) {
     return true;
   }
 
   if (typeof type === 'object' && type !== null) {
-    if (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE || type.$$typeof === REACT_FUNDAMENTAL_TYPE || type.$$typeof === REACT_BLOCK_TYPE || type[0] === REACT_SERVER_BLOCK_TYPE) {
+    if (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE || // This needs to include all possible module reference object
+    // types supported by any Flight configuration anywhere since
+    // we don't know which Flight build this will end up being used
+    // with.
+    type.$$typeof === REACT_MODULE_REFERENCE || type.getModuleId !== undefined) {
       return true;
     }
   }
@@ -3239,9 +3167,15 @@ function memo(type, compare) {
         return ownName;
       },
       set: function (name) {
-        ownName = name;
+        ownName = name; // The inner component shouldn't inherit this display name in most cases,
+        // because the component may be used elsewhere.
+        // But it's nice for anonymous functions to inherit the name,
+        // so that our component-stack generation logic will display their frames.
+        // An anonymous function generally suggests a pattern like:
+        //   React.memo((props) => {...});
+        // This kind of inner function is not used elsewhere so the side effect is okay.
 
-        if (type.displayName == null) {
+        if (!type.name && !type.displayName) {
           type.displayName = name;
         }
       }
@@ -3254,24 +3188,22 @@ function memo(type, compare) {
 function resolveDispatcher() {
   var dispatcher = ReactCurrentDispatcher.current;
 
-  if (!(dispatcher !== null)) {
-    {
-      throw Error( "Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:\n1. You might have mismatching versions of React and the renderer (such as React DOM)\n2. You might be breaking the Rules of Hooks\n3. You might have more than one copy of React in the same app\nSee https://reactjs.org/link/invalid-hook-call for tips about how to debug and fix this problem." );
+  {
+    if (dispatcher === null) {
+      error('Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for' + ' one of the following reasons:\n' + '1. You might have mismatching versions of React and the renderer (such as React DOM)\n' + '2. You might be breaking the Rules of Hooks\n' + '3. You might have more than one copy of React in the same app\n' + 'See https://reactjs.org/link/invalid-hook-call for tips about how to debug and fix this problem.');
     }
-  }
+  } // Will result in a null access error if accessed outside render phase. We
+  // intentionally don't throw our own error because this is in a hot path.
+  // Also helps ensure this is inlined.
+
 
   return dispatcher;
 }
-
-function useContext(Context, unstable_observedBits) {
+function useContext(Context) {
   var dispatcher = resolveDispatcher();
 
   {
-    if (unstable_observedBits !== undefined) {
-      error('useContext() second argument is reserved for future ' + 'use in React. Passing it is not supported. ' + 'You passed: %s.%s', unstable_observedBits, typeof unstable_observedBits === 'number' && Array.isArray(arguments[2]) ? '\n\nDid you call array.map(useContext)? ' + 'Calling Hooks inside a loop is not supported. ' + 'Learn more at https://reactjs.org/link/rules-of-hooks' : '');
-    } // TODO: add a more generic warning for invalid values.
-
-
+    // TODO: add a more generic warning for invalid values.
     if (Context._context !== undefined) {
       var realContext = Context._context; // Don't deduplicate because this legitimately causes bugs
       // and nobody should be using this in existing code.
@@ -3284,7 +3216,7 @@ function useContext(Context, unstable_observedBits) {
     }
   }
 
-  return dispatcher.useContext(Context, unstable_observedBits);
+  return dispatcher.useContext(Context);
 }
 function useState(initialState) {
   var dispatcher = resolveDispatcher();
@@ -3301,6 +3233,10 @@ function useRef(initialValue) {
 function useEffect(create, deps) {
   var dispatcher = resolveDispatcher();
   return dispatcher.useEffect(create, deps);
+}
+function useInsertionEffect(create, deps) {
+  var dispatcher = resolveDispatcher();
+  return dispatcher.useInsertionEffect(create, deps);
 }
 function useLayoutEffect(create, deps) {
   var dispatcher = resolveDispatcher();
@@ -3323,6 +3259,22 @@ function useDebugValue(value, formatterFn) {
     var dispatcher = resolveDispatcher();
     return dispatcher.useDebugValue(value, formatterFn);
   }
+}
+function useTransition() {
+  var dispatcher = resolveDispatcher();
+  return dispatcher.useTransition();
+}
+function useDeferredValue(value) {
+  var dispatcher = resolveDispatcher();
+  return dispatcher.useDeferredValue(value);
+}
+function useId() {
+  var dispatcher = resolveDispatcher();
+  return dispatcher.useId();
+}
+function useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot) {
+  var dispatcher = resolveDispatcher();
+  return dispatcher.useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
 
 // Helpers to patch console.logs to avoid logging during side-effect free
@@ -3388,25 +3340,25 @@ function reenableLogs() {
       }; // $FlowFixMe Flow thinks console is immutable.
 
       Object.defineProperties(console, {
-        log: _assign({}, props, {
+        log: assign({}, props, {
           value: prevLog
         }),
-        info: _assign({}, props, {
+        info: assign({}, props, {
           value: prevInfo
         }),
-        warn: _assign({}, props, {
+        warn: assign({}, props, {
           value: prevWarn
         }),
-        error: _assign({}, props, {
+        error: assign({}, props, {
           value: prevError
         }),
-        group: _assign({}, props, {
+        group: assign({}, props, {
           value: prevGroup
         }),
-        groupCollapsed: _assign({}, props, {
+        groupCollapsed: assign({}, props, {
           value: prevGroupCollapsed
         }),
-        groupEnd: _assign({}, props, {
+        groupEnd: assign({}, props, {
           value: prevGroupEnd
         })
       });
@@ -3447,7 +3399,7 @@ var componentFrameCache;
 
 function describeNativeComponentFrame(fn, construct) {
   // If something asked for a stack inside a fake render, it should get ignored.
-  if (!fn || reentry) {
+  if ( !fn || reentry) {
     return '';
   }
 
@@ -3556,7 +3508,14 @@ function describeNativeComponentFrame(fn, construct) {
 
               if (c < 0 || sampleLines[s] !== controlLines[c]) {
                 // V8 adds a "new" prefix for native classes. Let's remove it to make it prettier.
-                var _frame = '\n' + sampleLines[s].replace(' at new ', ' at ');
+                var _frame = '\n' + sampleLines[s].replace(' at new ', ' at '); // If our component frame is labeled "<anonymous>"
+                // but we have a user-provided "displayName"
+                // splice it in to make the stack more readable.
+
+
+                if (fn.displayName && _frame.includes('<anonymous>')) {
+                  _frame = _frame.replace('<anonymous>', fn.displayName);
+                }
 
                 {
                   if (typeof fn === 'function') {
@@ -3625,7 +3584,7 @@ function describeUnknownElementTypeFrameInDEV(type, source, ownerFn) {
   }
 
   switch (type) {
-    case exports.Suspense:
+    case REACT_SUSPENSE_TYPE:
       return describeBuiltInComponentFrame('Suspense');
 
     case REACT_SUSPENSE_LIST_TYPE:
@@ -3640,9 +3599,6 @@ function describeUnknownElementTypeFrameInDEV(type, source, ownerFn) {
       case REACT_MEMO_TYPE:
         // Memo may contain any component type so we recursively resolve it.
         return describeUnknownElementTypeFrameInDEV(type.type, source, ownerFn);
-
-      case REACT_BLOCK_TYPE:
-        return describeFunctionComponentFrame(type._render);
 
       case REACT_LAZY_TYPE:
         {
@@ -3679,7 +3635,7 @@ function setCurrentlyValidatingElement(element) {
 function checkPropTypes(typeSpecs, values, location, componentName, element) {
   {
     // $FlowFixMe This is okay but Flow doesn't know it.
-    var has = Function.call.bind(Object.prototype.hasOwnProperty);
+    var has = Function.call.bind(hasOwnProperty);
 
     for (var typeSpecName in typeSpecs) {
       if (has(typeSpecs, typeSpecName)) {
@@ -3691,6 +3647,7 @@ function checkPropTypes(typeSpecs, values, location, componentName, element) {
           // This is intentionally an invariant that gets caught. It's the same
           // behavior as without this statement except with a better message.
           if (typeof typeSpecs[typeSpecName] !== 'function') {
+            // eslint-disable-next-line react-internal/prod-error-codes
             var err = Error((componentName || 'React class') + ': ' + location + ' type `' + typeSpecName + '` is invalid; ' + 'it must be a function, usually from the `prop-types` package, but received `' + typeof typeSpecs[typeSpecName] + '`.' + 'This often happens because of typos such as `PropTypes.function` instead of `PropTypes.func`.');
             err.name = 'Invariant Violation';
             throw err;
@@ -3744,7 +3701,7 @@ var propTypesMisspellWarningShown;
 
 function getDeclarationErrorAddendum() {
   if (ReactCurrentOwner.current) {
-    var name = getComponentName(ReactCurrentOwner.current.type);
+    var name = getComponentNameFromType(ReactCurrentOwner.current.type);
 
     if (name) {
       return '\n\nCheck the render method of `' + name + '`.';
@@ -3826,7 +3783,7 @@ function validateExplicitKey(element, parentType) {
 
   if (element && element._owner && element._owner !== ReactCurrentOwner.current) {
     // Give the component that originally created this child.
-    childOwner = " It was passed a child from " + getComponentName(element._owner.type) + ".";
+    childOwner = " It was passed a child from " + getComponentNameFromType(element._owner.type) + ".";
   }
 
   {
@@ -3853,7 +3810,7 @@ function validateChildKeys(node, parentType) {
     return;
   }
 
-  if (Array.isArray(node)) {
+  if (isArray(node)) {
     for (var i = 0; i < node.length; i++) {
       var child = node[i];
 
@@ -3915,12 +3872,12 @@ function validatePropTypes(element) {
 
     if (propTypes) {
       // Intentionally inside to avoid triggering lazy initializers:
-      var name = getComponentName(type);
+      var name = getComponentNameFromType(type);
       checkPropTypes(propTypes, element.props, 'prop', name, element);
     } else if (type.PropTypes !== undefined && !propTypesMisspellWarningShown) {
       propTypesMisspellWarningShown = true; // Intentionally inside to avoid triggering lazy initializers:
 
-      var _name = getComponentName(type);
+      var _name = getComponentNameFromType(type);
 
       error('Component %s declared `PropTypes` instead of `propTypes`. Did you misspell the property assignment?', _name || 'Unknown');
     }
@@ -3985,10 +3942,10 @@ function createElementWithValidation(type, props, children) {
 
     if (type === null) {
       typeString = 'null';
-    } else if (Array.isArray(type)) {
+    } else if (isArray(type)) {
       typeString = 'array';
     } else if (type !== undefined && type.$$typeof === REACT_ELEMENT_TYPE) {
-      typeString = "<" + (getComponentName(type.type) || 'Unknown') + " />";
+      typeString = "<" + (getComponentNameFromType(type.type) || 'Unknown') + " />";
       info = ' Did you accidentally export a JSX literal instead of a component?';
     } else {
       typeString = typeof type;
@@ -4017,7 +3974,7 @@ function createElementWithValidation(type, props, children) {
     }
   }
 
-  if (type === exports.Fragment) {
+  if (type === REACT_FRAGMENT_TYPE) {
     validateFragmentProps(element);
   } else {
     validatePropTypes(element);
@@ -4064,16 +4021,263 @@ function cloneElementWithValidation(element, props, children) {
   return newElement;
 }
 
-{
+function startTransition(scope, options) {
+  var prevTransition = ReactCurrentBatchConfig.transition;
+  ReactCurrentBatchConfig.transition = {};
+  var currentTransition = ReactCurrentBatchConfig.transition;
+
+  {
+    ReactCurrentBatchConfig.transition._updatedFibers = new Set();
+  }
 
   try {
-    var frozenObject = Object.freeze({});
-    /* eslint-disable no-new */
+    scope();
+  } finally {
+    ReactCurrentBatchConfig.transition = prevTransition;
 
-    new Map([[frozenObject, null]]);
-    new Set([frozenObject]);
-    /* eslint-enable no-new */
-  } catch (e) {
+    {
+      if (prevTransition === null && currentTransition._updatedFibers) {
+        var updatedFibersCount = currentTransition._updatedFibers.size;
+
+        if (updatedFibersCount > 10) {
+          warn('Detected a large number of updates inside startTransition. ' + 'If this is due to a subscription please re-write it to use React provided hooks. ' + 'Otherwise concurrent mode guarantees are off the table.');
+        }
+
+        currentTransition._updatedFibers.clear();
+      }
+    }
+  }
+}
+
+var didWarnAboutMessageChannel = false;
+var enqueueTaskImpl = null;
+function enqueueTask(task) {
+  if (enqueueTaskImpl === null) {
+    try {
+      // read require off the module object to get around the bundlers.
+      // we don't want them to detect a require and bundle a Node polyfill.
+      var requireString = ('require' + Math.random()).slice(0, 7);
+      var nodeRequire = module && module[requireString]; // assuming we're in node, let's try to get node's
+      // version of setImmediate, bypassing fake timers if any.
+
+      enqueueTaskImpl = nodeRequire.call(module, 'timers').setImmediate;
+    } catch (_err) {
+      // we're in a browser
+      // we can't use regular timers because they may still be faked
+      // so we try MessageChannel+postMessage instead
+      enqueueTaskImpl = function (callback) {
+        {
+          if (didWarnAboutMessageChannel === false) {
+            didWarnAboutMessageChannel = true;
+
+            if (typeof MessageChannel === 'undefined') {
+              error('This browser does not have a MessageChannel implementation, ' + 'so enqueuing tasks via await act(async () => ...) will fail. ' + 'Please file an issue at https://github.com/facebook/react/issues ' + 'if you encounter this warning.');
+            }
+          }
+        }
+
+        var channel = new MessageChannel();
+        channel.port1.onmessage = callback;
+        channel.port2.postMessage(undefined);
+      };
+    }
+  }
+
+  return enqueueTaskImpl(task);
+}
+
+var actScopeDepth = 0;
+var didWarnNoAwaitAct = false;
+function act(callback) {
+  {
+    // `act` calls can be nested, so we track the depth. This represents the
+    // number of `act` scopes on the stack.
+    var prevActScopeDepth = actScopeDepth;
+    actScopeDepth++;
+
+    if (ReactCurrentActQueue.current === null) {
+      // This is the outermost `act` scope. Initialize the queue. The reconciler
+      // will detect the queue and use it instead of Scheduler.
+      ReactCurrentActQueue.current = [];
+    }
+
+    var prevIsBatchingLegacy = ReactCurrentActQueue.isBatchingLegacy;
+    var result;
+
+    try {
+      // Used to reproduce behavior of `batchedUpdates` in legacy mode. Only
+      // set to `true` while the given callback is executed, not for updates
+      // triggered during an async event, because this is how the legacy
+      // implementation of `act` behaved.
+      ReactCurrentActQueue.isBatchingLegacy = true;
+      result = callback(); // Replicate behavior of original `act` implementation in legacy mode,
+      // which flushed updates immediately after the scope function exits, even
+      // if it's an async function.
+
+      if (!prevIsBatchingLegacy && ReactCurrentActQueue.didScheduleLegacyUpdate) {
+        var queue = ReactCurrentActQueue.current;
+
+        if (queue !== null) {
+          ReactCurrentActQueue.didScheduleLegacyUpdate = false;
+          flushActQueue(queue);
+        }
+      }
+    } catch (error) {
+      popActScope(prevActScopeDepth);
+      throw error;
+    } finally {
+      ReactCurrentActQueue.isBatchingLegacy = prevIsBatchingLegacy;
+    }
+
+    if (result !== null && typeof result === 'object' && typeof result.then === 'function') {
+      var thenableResult = result; // The callback is an async function (i.e. returned a promise). Wait
+      // for it to resolve before exiting the current scope.
+
+      var wasAwaited = false;
+      var thenable = {
+        then: function (resolve, reject) {
+          wasAwaited = true;
+          thenableResult.then(function (returnValue) {
+            popActScope(prevActScopeDepth);
+
+            if (actScopeDepth === 0) {
+              // We've exited the outermost act scope. Recursively flush the
+              // queue until there's no remaining work.
+              recursivelyFlushAsyncActWork(returnValue, resolve, reject);
+            } else {
+              resolve(returnValue);
+            }
+          }, function (error) {
+            // The callback threw an error.
+            popActScope(prevActScopeDepth);
+            reject(error);
+          });
+        }
+      };
+
+      {
+        if (!didWarnNoAwaitAct && typeof Promise !== 'undefined') {
+          // eslint-disable-next-line no-undef
+          Promise.resolve().then(function () {}).then(function () {
+            if (!wasAwaited) {
+              didWarnNoAwaitAct = true;
+
+              error('You called act(async () => ...) without await. ' + 'This could lead to unexpected testing behaviour, ' + 'interleaving multiple act calls and mixing their ' + 'scopes. ' + 'You should - await act(async () => ...);');
+            }
+          });
+        }
+      }
+
+      return thenable;
+    } else {
+      var returnValue = result; // The callback is not an async function. Exit the current scope
+      // immediately, without awaiting.
+
+      popActScope(prevActScopeDepth);
+
+      if (actScopeDepth === 0) {
+        // Exiting the outermost act scope. Flush the queue.
+        var _queue = ReactCurrentActQueue.current;
+
+        if (_queue !== null) {
+          flushActQueue(_queue);
+          ReactCurrentActQueue.current = null;
+        } // Return a thenable. If the user awaits it, we'll flush again in
+        // case additional work was scheduled by a microtask.
+
+
+        var _thenable = {
+          then: function (resolve, reject) {
+            // Confirm we haven't re-entered another `act` scope, in case
+            // the user does something weird like await the thenable
+            // multiple times.
+            if (ReactCurrentActQueue.current === null) {
+              // Recursively flush the queue until there's no remaining work.
+              ReactCurrentActQueue.current = [];
+              recursivelyFlushAsyncActWork(returnValue, resolve, reject);
+            } else {
+              resolve(returnValue);
+            }
+          }
+        };
+        return _thenable;
+      } else {
+        // Since we're inside a nested `act` scope, the returned thenable
+        // immediately resolves. The outer scope will flush the queue.
+        var _thenable2 = {
+          then: function (resolve, reject) {
+            resolve(returnValue);
+          }
+        };
+        return _thenable2;
+      }
+    }
+  }
+}
+
+function popActScope(prevActScopeDepth) {
+  {
+    if (prevActScopeDepth !== actScopeDepth - 1) {
+      error('You seem to have overlapping act() calls, this is not supported. ' + 'Be sure to await previous act() calls before making a new one. ');
+    }
+
+    actScopeDepth = prevActScopeDepth;
+  }
+}
+
+function recursivelyFlushAsyncActWork(returnValue, resolve, reject) {
+  {
+    var queue = ReactCurrentActQueue.current;
+
+    if (queue !== null) {
+      try {
+        flushActQueue(queue);
+        enqueueTask(function () {
+          if (queue.length === 0) {
+            // No additional work was scheduled. Finish.
+            ReactCurrentActQueue.current = null;
+            resolve(returnValue);
+          } else {
+            // Keep flushing work until there's none left.
+            recursivelyFlushAsyncActWork(returnValue, resolve, reject);
+          }
+        });
+      } catch (error) {
+        reject(error);
+      }
+    } else {
+      resolve(returnValue);
+    }
+  }
+}
+
+var isFlushing = false;
+
+function flushActQueue(queue) {
+  {
+    if (!isFlushing) {
+      // Prevent re-entrance.
+      isFlushing = true;
+      var i = 0;
+
+      try {
+        for (; i < queue.length; i++) {
+          var callback = queue[i];
+
+          do {
+            callback = callback(true);
+          } while (callback !== null);
+        }
+
+        queue.length = 0;
+      } catch (error) {
+        // If something throws, leave the remaining callbacks on the queue.
+        queue = queue.slice(i + 1);
+        throw error;
+      } finally {
+        isFlushing = false;
+      }
+    }
   }
 }
 
@@ -4090,7 +4294,11 @@ var Children = {
 
 exports.Children = Children;
 exports.Component = Component;
+exports.Fragment = REACT_FRAGMENT_TYPE;
+exports.Profiler = REACT_PROFILER_TYPE;
 exports.PureComponent = PureComponent;
+exports.StrictMode = REACT_STRICT_MODE_TYPE;
+exports.Suspense = REACT_SUSPENSE_TYPE;
 exports.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = ReactSharedInternals;
 exports.cloneElement = cloneElement$1;
 exports.createContext = createContext;
@@ -4101,17 +4309,33 @@ exports.forwardRef = forwardRef;
 exports.isValidElement = isValidElement;
 exports.lazy = lazy;
 exports.memo = memo;
+exports.startTransition = startTransition;
+exports.unstable_act = act;
 exports.useCallback = useCallback;
 exports.useContext = useContext;
 exports.useDebugValue = useDebugValue;
+exports.useDeferredValue = useDeferredValue;
 exports.useEffect = useEffect;
+exports.useId = useId;
 exports.useImperativeHandle = useImperativeHandle;
+exports.useInsertionEffect = useInsertionEffect;
 exports.useLayoutEffect = useLayoutEffect;
 exports.useMemo = useMemo;
 exports.useReducer = useReducer;
 exports.useRef = useRef;
 exports.useState = useState;
+exports.useSyncExternalStore = useSyncExternalStore;
+exports.useTransition = useTransition;
 exports.version = ReactVersion;
+          /* global __REACT_DEVTOOLS_GLOBAL_HOOK__ */
+if (
+  typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined' &&
+  typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop ===
+    'function'
+) {
+  __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(new Error());
+}
+        
   })();
 }
 
@@ -4122,7 +4346,7 @@ exports.version = ReactVersion;
 /*!*************************************!*\
   !*** ./node_modules/react/index.js ***!
   \*************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 
@@ -4138,14 +4362,17 @@ if (false) {} else {
 /*!*******************************************************************!*\
   !*** ./node_modules/@babel/runtime/helpers/esm/defineProperty.js ***!
   \*******************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+/***/ (function(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ _defineProperty)
+/* harmony export */   "default": function() { return /* binding */ _defineProperty; }
 /* harmony export */ });
+/* harmony import */ var _toPropertyKey_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./toPropertyKey.js */ "./node_modules/@babel/runtime/helpers/esm/toPropertyKey.js");
+
 function _defineProperty(obj, key, value) {
+  key = (0,_toPropertyKey_js__WEBPACK_IMPORTED_MODULE_0__["default"])(key);
   if (key in obj) {
     Object.defineProperty(obj, key, {
       value: value,
@@ -4156,8 +4383,78 @@ function _defineProperty(obj, key, value) {
   } else {
     obj[key] = value;
   }
-
   return obj;
+}
+
+/***/ }),
+
+/***/ "./node_modules/@babel/runtime/helpers/esm/toPrimitive.js":
+/*!****************************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/esm/toPrimitive.js ***!
+  \****************************************************************/
+/***/ (function(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": function() { return /* binding */ _toPrimitive; }
+/* harmony export */ });
+/* harmony import */ var _typeof_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./typeof.js */ "./node_modules/@babel/runtime/helpers/esm/typeof.js");
+
+function _toPrimitive(input, hint) {
+  if ((0,_typeof_js__WEBPACK_IMPORTED_MODULE_0__["default"])(input) !== "object" || input === null) return input;
+  var prim = input[Symbol.toPrimitive];
+  if (prim !== undefined) {
+    var res = prim.call(input, hint || "default");
+    if ((0,_typeof_js__WEBPACK_IMPORTED_MODULE_0__["default"])(res) !== "object") return res;
+    throw new TypeError("@@toPrimitive must return a primitive value.");
+  }
+  return (hint === "string" ? String : Number)(input);
+}
+
+/***/ }),
+
+/***/ "./node_modules/@babel/runtime/helpers/esm/toPropertyKey.js":
+/*!******************************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/esm/toPropertyKey.js ***!
+  \******************************************************************/
+/***/ (function(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": function() { return /* binding */ _toPropertyKey; }
+/* harmony export */ });
+/* harmony import */ var _typeof_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./typeof.js */ "./node_modules/@babel/runtime/helpers/esm/typeof.js");
+/* harmony import */ var _toPrimitive_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./toPrimitive.js */ "./node_modules/@babel/runtime/helpers/esm/toPrimitive.js");
+
+
+function _toPropertyKey(arg) {
+  var key = (0,_toPrimitive_js__WEBPACK_IMPORTED_MODULE_1__["default"])(arg, "string");
+  return (0,_typeof_js__WEBPACK_IMPORTED_MODULE_0__["default"])(key) === "symbol" ? key : String(key);
+}
+
+/***/ }),
+
+/***/ "./node_modules/@babel/runtime/helpers/esm/typeof.js":
+/*!***********************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/esm/typeof.js ***!
+  \***********************************************************/
+/***/ (function(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": function() { return /* binding */ _typeof; }
+/* harmony export */ });
+function _typeof(obj) {
+  "@babel/helpers - typeof";
+
+  return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) {
+    return typeof obj;
+  } : function (obj) {
+    return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+  }, _typeof(obj);
 }
 
 /***/ })
@@ -4176,13 +4473,16 @@ function _defineProperty(obj, key, value) {
 /******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = __webpack_module_cache__[moduleId] = {
-/******/ 			// no module.id needed
-/******/ 			// no module.loaded needed
+/******/ 			id: moduleId,
+/******/ 			loaded: false,
 /******/ 			exports: {}
 /******/ 		};
 /******/ 	
 /******/ 		// Execute the module function
 /******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
 /******/ 	
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
@@ -4190,49 +4490,58 @@ function _defineProperty(obj, key, value) {
 /******/ 	
 /************************************************************************/
 /******/ 	/* webpack/runtime/compat get default export */
-/******/ 	(() => {
+/******/ 	!function() {
 /******/ 		// getDefaultExport function for compatibility with non-harmony modules
-/******/ 		__webpack_require__.n = (module) => {
+/******/ 		__webpack_require__.n = function(module) {
 /******/ 			var getter = module && module.__esModule ?
-/******/ 				() => (module['default']) :
-/******/ 				() => (module);
+/******/ 				function() { return module['default']; } :
+/******/ 				function() { return module; };
 /******/ 			__webpack_require__.d(getter, { a: getter });
 /******/ 			return getter;
 /******/ 		};
-/******/ 	})();
+/******/ 	}();
 /******/ 	
 /******/ 	/* webpack/runtime/define property getters */
-/******/ 	(() => {
+/******/ 	!function() {
 /******/ 		// define getter functions for harmony exports
-/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 		__webpack_require__.d = function(exports, definition) {
 /******/ 			for(var key in definition) {
 /******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
 /******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
 /******/ 				}
 /******/ 			}
 /******/ 		};
-/******/ 	})();
+/******/ 	}();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
-/******/ 	(() => {
-/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ 	})();
+/******/ 	!function() {
+/******/ 		__webpack_require__.o = function(obj, prop) { return Object.prototype.hasOwnProperty.call(obj, prop); }
+/******/ 	}();
 /******/ 	
 /******/ 	/* webpack/runtime/make namespace object */
-/******/ 	(() => {
+/******/ 	!function() {
 /******/ 		// define __esModule on exports
-/******/ 		__webpack_require__.r = (exports) => {
+/******/ 		__webpack_require__.r = function(exports) {
 /******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
 /******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 /******/ 			}
 /******/ 			Object.defineProperty(exports, '__esModule', { value: true });
 /******/ 		};
-/******/ 	})();
+/******/ 	}();
+/******/ 	
+/******/ 	/* webpack/runtime/node module decorator */
+/******/ 	!function() {
+/******/ 		__webpack_require__.nmd = function(module) {
+/******/ 			module.paths = [];
+/******/ 			if (!module.children) module.children = [];
+/******/ 			return module;
+/******/ 		};
+/******/ 	}();
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be in strict mode.
-(() => {
+!function() {
 "use strict";
 /*!***********************************************************************************!*\
   !*** ./src/advanced-custom-fields-pro/assets/src/js/pro/acf-pro-blocks-legacy.js ***!
@@ -4243,8 +4552,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _acf_blocks_legacy_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./_acf-blocks-legacy.js */ "./src/advanced-custom-fields-pro/assets/src/js/pro/_acf-blocks-legacy.js");
 
 
-})();
-
+}();
 /******/ })()
 ;
 //# sourceMappingURL=acf-pro-blocks-legacy.js.map

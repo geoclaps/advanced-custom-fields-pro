@@ -1,32 +1,31 @@
-/******/ (() => { // webpackBootstrap
+/******/ (function() { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
 /***/ "./src/advanced-custom-fields-pro/assets/src/js/pro/_acf-blocks.js":
 /*!*************************************************************************!*\
   !*** ./src/advanced-custom-fields-pro/assets/src/js/pro/_acf-blocks.js ***!
   \*************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "./node_modules/@babel/runtime/helpers/esm/defineProperty.js");
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/element */ "./node_modules/react/index.js");
-
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__);
 
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0,_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0__["default"])(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
 const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
-
 (($, undefined) => {
   // Dependencies.
   const {
     BlockControls,
     InspectorControls,
     InnerBlocks,
-    useBlockProps
+    useBlockProps,
+    AlignmentToolbar,
+    BlockVerticalAlignmentToolbar
   } = wp.blockEditor;
   const {
     ToolbarGroup,
@@ -46,14 +45,22 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
   const {
     createHigherOrderComponent
   } = wp.compose;
+
+  // Potentially experimental dependencies.
+  const BlockAlignmentMatrixToolbar = wp.blockEditor.__experimentalBlockAlignmentMatrixToolbar || wp.blockEditor.BlockAlignmentMatrixToolbar;
+  // Gutenberg v10.x begins transition from Toolbar components to Control components.
+  const BlockAlignmentMatrixControl = wp.blockEditor.__experimentalBlockAlignmentMatrixControl || wp.blockEditor.BlockAlignmentMatrixControl;
+  const BlockFullHeightAlignmentControl = wp.blockEditor.__experimentalBlockFullHeightAligmentControl || wp.blockEditor.__experimentalBlockFullHeightAlignmentControl || wp.blockEditor.BlockFullHeightAlignmentControl;
+  const useInnerBlocksProps = wp.blockEditor.__experimentalUseInnerBlocksProps || wp.blockEditor.useInnerBlocksProps;
+
   /**
    * Storage for registered block types.
    *
    * @since 5.8.0
    * @var object
    */
-
   const blockTypes = {};
+
   /**
    * Returns a block type for the given name.
    *
@@ -63,46 +70,24 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @param	string name The block name.
    * @return	(object|false)
    */
-
   function getBlockType(name) {
     return blockTypes[name] || false;
   }
+
   /**
-   * Returns true if the provided block is new.
+   * Returns a block version for a given block name
    *
-   * @date	31/07/2020
-   * @since	5.9.0
+   * @date 8/6/22
+   * @since 6.0
    *
-   * @param	{object} props The block props (of which, the attributes properties is destructured)
-   * @return	bool
+   * @param string name The block name
+   * @return int
    */
-
-
-  function isNewBlock(_ref) {
-    let {
-      attributes
-    } = _ref;
-    return !attributes.id;
+  function getBlockVersion(name) {
+    const blockType = getBlockType(name);
+    return blockType.acf_block_version || 1;
   }
-  /**
-   * Returns true if the provided block is a duplicate:
-   * True when there are is another block with the same "id", but a different "clientId".
-   *
-   * @date	31/07/2020
-   * @since	5.9.0
-   *
-   * @param	{object} props The block props (of which, the attributes and clientId properties are destructured)
-   * @return	bool
-   */
 
-
-  function isDuplicateBlock(_ref2) {
-    let {
-      attributes,
-      clientId
-    } = _ref2;
-    return !!getBlocks().filter(block => block.attributes.id === attributes.id).filter(block => block.clientId !== clientId).length;
-  }
   /**
    * Returns true if a block (identified by client ID) is nested in a query loop block.
    *
@@ -112,13 +97,12 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @param {string} clientId A block client ID
    * @return boolean
    */
-
-
   function isBlockInQueryLoop(clientId) {
     const parents = wp.data.select('core/block-editor').getBlockParents(clientId);
     const parentsData = wp.data.select('core/block-editor').getBlocksByClientId(parents);
     return parentsData.filter(block => block.name === 'core/query').length;
   }
+
   /**
    * Returns true if we're currently inside the WP 5.9+ site editor.
    *
@@ -127,11 +111,10 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    *
    * @return boolean
    */
-
-
   function isSiteEditor() {
     return typeof pagenow === 'string' && pagenow === 'site-editor';
   }
+
   /**
    * Returns true if the block editor is currently showing the desktop device type preview.
    *
@@ -143,16 +126,22 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    *
    * @return boolean
    */
-
-
   function isDesktopPreviewDeviceType() {
-    const editPostStore = select('core/edit-post'); // Return true if the edit post store isn't available (such as in the widget editor)
+    const editPostStore = select('core/edit-post');
 
-    if (!editPostStore) return true; // Return true if the function doesn't exist
+    // Return true if the edit post store isn't available (such as in the widget editor)
+    if (!editPostStore) return true;
 
-    if (!editPostStore.__experimentalGetPreviewDeviceType) return true;
-    return 'Desktop' === editPostStore.__experimentalGetPreviewDeviceType();
+    // Check if function exists (experimental or not) and return true if it's Desktop, or doesn't exist.
+    if (editPostStore.__experimentalGetPreviewDeviceType) {
+      return 'Desktop' === editPostStore.__experimentalGetPreviewDeviceType();
+    } else if (editPostStore.getPreviewDeviceType) {
+      return 'Desktop' === editPostStore.getPreviewDeviceType();
+    } else {
+      return true;
+    }
   }
+
   /**
    * Returns true if the block editor is currently in template edit mode.
    *
@@ -161,16 +150,17 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    *
    * @return boolean
    */
-
-
   function isEditingTemplate() {
-    const editPostStore = select('core/edit-post'); // Return false if the edit post store isn't available (such as in the widget editor)
+    const editPostStore = select('core/edit-post');
 
-    if (!editPostStore) return false; // Return false if the function doesn't exist
+    // Return false if the edit post store isn't available (such as in the widget editor)
+    if (!editPostStore) return false;
 
+    // Return false if the function doesn't exist
     if (!editPostStore.isEditingTemplate) return false;
     return editPostStore.isEditingTemplate();
   }
+
   /**
    * Returns true if we're currently inside an iFramed non-desktop device preview type (WP5.9+)
    *
@@ -179,11 +169,10 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    *
    * @return boolean
    */
-
-
   function isiFramedMobileDevicePreview() {
     return $('iframe[name=editor-canvas]').length && !isDesktopPreviewDeviceType();
   }
+
   /**
    * Registers a block type.
    *
@@ -193,122 +182,113 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @param	object blockType The block type settings localized from PHP.
    * @return	object The result from wp.blocks.registerBlockType().
    */
-
-
   function registerBlockType(blockType) {
     // Bail early if is excluded post_type.
     const allowedTypes = blockType.post_types || [];
-
     if (allowedTypes.length) {
       // Always allow block to appear on "Edit reusable Block" screen.
-      allowedTypes.push('wp_block'); // Check post type.
+      allowedTypes.push('wp_block');
 
+      // Check post type.
       const postType = acf.get('postType');
-
       if (!allowedTypes.includes(postType)) {
         return false;
       }
-    } // Handle svg HTML.
+    }
 
-
+    // Handle svg HTML.
     if (typeof blockType.icon === 'string' && blockType.icon.substr(0, 4) === '<svg') {
       const iconHTML = blockType.icon;
       blockType.icon = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(Div, null, iconHTML);
-    } // Remove icon if empty to allow for default "block".
+    }
+
+    // Remove icon if empty to allow for default "block".
     // Avoids JS error preventing block from being registered.
-
-
     if (!blockType.icon) {
       delete blockType.icon;
-    } // Check category exists and fallback to "common".
+    }
 
-
-    const category = wp.blocks.getCategories().filter(_ref3 => {
+    // Check category exists and fallback to "common".
+    const category = wp.blocks.getCategories().filter(_ref => {
       let {
         slug
-      } = _ref3;
+      } = _ref;
       return slug === blockType.category;
     }).pop();
-
     if (!category) {
       //console.warn( `The block "${blockType.name}" is registered with an unknown category "${blockType.category}".` );
       blockType.category = 'common';
-    } // Define block type attributes.
-    // Leave default undefined to allow WP to serialize attributes in HTML comments.
-    // See https://github.com/WordPress/gutenberg/issues/7342
+    }
 
-
-    let attributes = {
-      id: {
-        type: 'string'
-      },
-      name: {
-        type: 'string'
-      },
-      data: {
-        type: 'object'
-      },
-      align: {
-        type: 'string'
-      },
-      mode: {
-        type: 'string'
-      }
-    }; // Apply anchor supports to avoid block editor default writing to ID.
-
-    if (blockType.supports.anchor) {
-      attributes.anchor = {
-        type: 'string'
-      };
-    } // Append edit and save functions.
-
-
-    let ThisBlockEdit = BlockEdit;
-    let ThisBlockSave = BlockSave; // Apply align_text functionality.
-
-    if (blockType.supports.align_text) {
-      attributes = withAlignTextAttributes(attributes);
-      ThisBlockEdit = withAlignTextComponent(ThisBlockEdit, blockType);
-    } // Apply align_content functionality.
-
-
-    if (blockType.supports.align_content) {
-      attributes = withAlignContentAttributes(attributes);
-      ThisBlockEdit = withAlignContentComponent(ThisBlockEdit, blockType);
-    } // Apply full_height functionality.
-
-
-    if (blockType.supports.full_height) {
-      attributes = withFullHeightAttributes(attributes);
-      ThisBlockEdit = withFullHeightComponent(ThisBlockEdit, blockType);
-    } // Merge in block settings.
-
-
+    // Merge in block settings before local additions.
     blockType = acf.parseArgs(blockType, {
       title: '',
       name: '',
       category: '',
-      attributes,
-      apiVersion: 2,
-      edit: props => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(ThisBlockEdit, props),
-      save: () => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(ThisBlockSave, null)
-    }); // Add to storage.
+      api_version: 2,
+      acf_block_version: 1
+    });
 
-    blockTypes[blockType.name] = blockType; // Register with WP.
+    // Remove all empty attribute defaults from PHP values to allow serialisation.
+    // https://github.com/WordPress/gutenberg/issues/7342
+    for (const key in blockType.attributes) {
+      if (blockType.attributes[key].default.length === 0) {
+        delete blockType.attributes[key].default;
+      }
+    }
 
-    const result = wp.blocks.registerBlockType(blockType.name, blockType); // Fix bug in 'core/anchor/attribute' filter overwriting attribute.
+    // Apply anchor supports to avoid block editor default writing to ID.
+    if (blockType.supports.anchor) {
+      blockType.attributes.anchor = {
+        type: 'string'
+      };
+    }
+
+    // Append edit and save functions.
+    let ThisBlockEdit = BlockEdit;
+    let ThisBlockSave = BlockSave;
+
+    // Apply alignText functionality.
+    if (blockType.supports.alignText || blockType.supports.align_text) {
+      blockType.attributes = addBackCompatAttribute(blockType.attributes, 'align_text', 'string');
+      ThisBlockEdit = withAlignTextComponent(ThisBlockEdit, blockType);
+    }
+
+    // Apply alignContent functionality.
+    if (blockType.supports.alignContent || blockType.supports.align_content) {
+      blockType.attributes = addBackCompatAttribute(blockType.attributes, 'align_content', 'string');
+      ThisBlockEdit = withAlignContentComponent(ThisBlockEdit, blockType);
+    }
+
+    // Apply fullHeight functionality.
+    if (blockType.supports.fullHeight || blockType.supports.full_height) {
+      blockType.attributes = addBackCompatAttribute(blockType.attributes, 'full_height', 'boolean');
+      ThisBlockEdit = withFullHeightComponent(ThisBlockEdit, blockType.blockType);
+    }
+
+    // Set edit and save functions.
+    blockType.edit = props => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(ThisBlockEdit, props);
+    blockType.save = () => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(ThisBlockSave, null);
+
+    // Add to storage.
+    blockTypes[blockType.name] = blockType;
+
+    // Register with WP.
+    const result = wp.blocks.registerBlockType(blockType.name, blockType);
+
+    // Fix bug in 'core/anchor/attribute' filter overwriting attribute.
     // Required for < WP5.9
     // See https://github.com/WordPress/gutenberg/issues/15240
-
     if (result.attributes.anchor) {
       result.attributes.anchor = {
         type: 'string'
       };
-    } // Return result.
+    }
 
-
+    // Return result.
     return result;
   }
+
   /**
    * Returns the wp.data.select() response with backwards compatibility.
    *
@@ -318,15 +298,13 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @param	string selector The selector name.
    * @return	mixed
    */
-
-
   function select(selector) {
     if (selector === 'core/block-editor') {
       return wp.data.select('core/block-editor') || wp.data.select('core/editor');
     }
-
     return wp.data.select(selector);
   }
+
   /**
    * Returns the wp.data.dispatch() response with backwards compatibility.
    *
@@ -336,11 +314,10 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @param	string selector The selector name.
    * @return	mixed
    */
-
-
   function dispatch(selector) {
     return wp.data.dispatch(selector);
   }
+
   /**
    * Returns an array of all blocks for the given args.
    *
@@ -350,47 +327,47 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @param	{object} args An object of key=>value pairs used to filter results.
    * @return	array.
    */
-
-
   function getBlocks(args) {
-    let blocks = []; // Local function to recurse through all child blocks and add to the blocks array.
+    let blocks = [];
 
+    // Local function to recurse through all child blocks and add to the blocks array.
     const recurseBlocks = block => {
       blocks.push(block);
       select('core/block-editor').getBlocks(block.clientId).forEach(recurseBlocks);
-    }; // Trigger initial recursion for parent level blocks.
+    };
 
+    // Trigger initial recursion for parent level blocks.
+    select('core/block-editor').getBlocks().forEach(recurseBlocks);
 
-    select('core/block-editor').getBlocks().forEach(recurseBlocks); // Loop over args and filter.
-
+    // Loop over args and filter.
     for (const k in args) {
-      blocks = blocks.filter(_ref4 => {
+      blocks = blocks.filter(_ref2 => {
         let {
           attributes
-        } = _ref4;
+        } = _ref2;
         return attributes[k] === args[k];
       });
-    } // Return results.
+    }
 
-
+    // Return results.
     return blocks;
   }
+
   /**
    * Storage for the AJAX queue.
    *
    * @const {array}
    */
-
-
   const ajaxQueue = {};
+
   /**
    * Storage for cached AJAX requests for block content.
    *
    * @since 5.12
    * @const {array}
    */
-
   const fetchCache = {};
+
   /**
    * Fetches a JSON result from the AJAX API.
    *
@@ -401,30 +378,32 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @query	object The query args used in AJAX callback.
    * @return	object The AJAX promise.
    */
-
   function fetchBlock(args) {
     const {
       attributes = {},
       context = {},
       query = {},
+      clientId = null,
       delay = 0
-    } = args; // Build a unique queue ID from block data
+    } = args;
 
+    // Build a unique queue ID from block data, including the clientId for edit forms.
     const queueId = md5(JSON.stringify(_objectSpread(_objectSpread(_objectSpread({}, attributes), context), query)));
     const data = ajaxQueue[queueId] || {
       query: {},
       timeout: false,
       promise: $.Deferred(),
       started: false
-    }; // Append query args to storage.
+    };
 
+    // Append query args to storage.
     data.query = _objectSpread(_objectSpread({}, data.query), query);
-    if (data.started) return data.promise; // Set fresh timeout.
+    if (data.started) return data.promise;
 
+    // Set fresh timeout.
     clearTimeout(data.timeout);
     data.timeout = setTimeout(() => {
       data.started = true;
-
       if (fetchCache[queueId]) {
         ajaxQueue[queueId] = null;
         data.promise.resolve.apply(fetchCache[queueId][0], fetchCache[queueId][1]);
@@ -437,6 +416,7 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
           data: acf.prepareForAjax({
             action: 'acf/ajax/fetch-block',
             block: JSON.stringify(attributes),
+            clientId: clientId,
             context: JSON.stringify(context),
             query: data.query
           })
@@ -450,12 +430,15 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
           data.promise.reject.apply(this, arguments);
         });
       }
-    }, delay); // Update storage.
+    }, delay);
 
-    ajaxQueue[queueId] = data; // Return promise.
+    // Update storage.
+    ajaxQueue[queueId] = data;
 
+    // Return promise.
     return data.promise;
   }
+
   /**
    * Returns true if both object are the same.
    *
@@ -466,11 +449,10 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @param	object obj2
    * @return	bool
    */
-
-
   function compareObjects(obj1, obj2) {
     return JSON.stringify(obj1) === JSON.stringify(obj2);
   }
+
   /**
    * Converts HTML into a React element.
    *
@@ -478,11 +460,17 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @since	5.9.0
    *
    * @param	string html The HTML to convert.
+   * @param	int acfBlockVersion The ACF block version number.
    * @return	object Result of React.createElement().
    */
+  acf.parseJSX = (html, acfBlockVersion) => {
+    // Apply a temporary wrapper for the jQuery parse to prevent text nodes triggering errors.
+    html = '<div>' + html + '</div>';
+    // Correctly balance InnerBlocks tags for jQuery's initial parse.
+    html = html.replace(/<InnerBlocks([^>]+)?\/>/, '<InnerBlocks$1></InnerBlocks>');
+    return parseNode($(html)[0], acfBlockVersion, 0).props.children;
+  };
 
-
-  acf.parseJSX = html => parseNode($(html)[0]);
   /**
    * Converts a DOM node into a React element.
    *
@@ -490,43 +478,52 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @since	5.9.0
    *
    * @param	DOM node The DOM node.
+   * @param	int acfBlockVersion The ACF block version number.
+   * @param	int level The recursion level.
    * @return	object Result of React.createElement().
    */
-
-
-  function parseNode(node) {
+  function parseNode(node, acfBlockVersion) {
+    let level = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
     // Get node name.
-    const nodeName = parseNodeName(node.nodeName.toLowerCase());
-
+    const nodeName = parseNodeName(node.nodeName.toLowerCase(), acfBlockVersion);
     if (!nodeName) {
       return null;
-    } // Get node attributes in React friendly format.
+    }
 
-
+    // Get node attributes in React friendly format.
     const nodeAttrs = {};
-    acf.arrayArgs(node.attributes).map(parseNodeAttr).forEach(_ref5 => {
+    if (level === 1 && nodeName !== 'ACFInnerBlocks') {
+      // Top level (after stripping away the container div), create a ref for passing through to ACF's JS API.
+      nodeAttrs.ref = React.createRef();
+    }
+    acf.arrayArgs(node.attributes).map(parseNodeAttr).forEach(_ref3 => {
       let {
         name,
         value
-      } = _ref5;
+      } = _ref3;
       nodeAttrs[name] = value;
-    }); // Define args for React.createElement().
+    });
+    if ('ACFInnerBlocks' === nodeName) {
+      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(ACFInnerBlocks, nodeAttrs);
+    }
 
+    // Define args for React.createElement().
     const args = [nodeName, nodeAttrs];
     acf.arrayArgs(node.childNodes).forEach(child => {
       if (child instanceof Text) {
         const text = child.textContent;
-
         if (text) {
           args.push(text);
         }
       } else {
-        args.push(parseNode(child));
+        args.push(parseNode(child, acfBlockVersion, level + 1));
       }
-    }); // Return element.
+    });
 
+    // Return element.
     return React.createElement.apply(this, args);
   }
+
   /**
    * Converts a node or attribute name into it's JSX compliant name
    *
@@ -534,15 +531,14 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @since    5.9.8
    *
    * @param    string name The node or attribute name.
-   * @returns  string
+   * @return  string
    */
-
-
   function getJSXName(name) {
     const replacement = acf.isget(acf, 'jsxNameReplacements', name);
     if (replacement) return replacement;
     return name;
   }
+
   /**
    * Converts the given name into a React friendly name or component.
    *
@@ -550,28 +546,45 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @since	5.9.0
    *
    * @param	string name The node name in lowercase.
+   * @param	int acfBlockVersion The ACF block version number.
    * @return	mixed
    */
-
-
-  function parseNodeName(name) {
+  function parseNodeName(name, acfBlockVersion) {
     switch (name) {
       case 'innerblocks':
-        return InnerBlocks;
-
+        if (acfBlockVersion < 2) {
+          return InnerBlocks;
+        }
+        return 'ACFInnerBlocks';
       case 'script':
         return Script;
-
       case '#comment':
         return null;
-
       default:
         // Replace names for JSX counterparts.
         name = getJSXName(name);
     }
-
     return name;
   }
+
+  /**
+   * Functional component for ACFInnerBlocks.
+   *
+   * @since 6.0.0
+   *
+   * @param obj props element properties.
+   * @return DOM element
+   */
+  function ACFInnerBlocks(props) {
+    const {
+      className = 'acf-innerblocks-container'
+    } = props;
+    const innerBlockProps = useInnerBlocksProps({
+      className: className
+    }, props);
+    return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", innerBlockProps, innerBlockProps.children);
+  }
+
   /**
    * Converts the given attribute into a React friendly name and value object.
    *
@@ -581,67 +594,62 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @param	obj nodeAttr The node attribute.
    * @return	obj
    */
-
-
   function parseNodeAttr(nodeAttr) {
     let name = nodeAttr.name;
     let value = nodeAttr.value;
-
     switch (name) {
       // Class.
       case 'class':
         name = 'className';
         break;
-      // Style.
 
+      // Style.
       case 'style':
         const css = {};
         value.split(';').forEach(s => {
           const pos = s.indexOf(':');
-
           if (pos > 0) {
             let ruleName = s.substr(0, pos).trim();
-            const ruleValue = s.substr(pos + 1).trim(); // Rename core properties, but not CSS variables.
+            const ruleValue = s.substr(pos + 1).trim();
 
+            // Rename core properties, but not CSS variables.
             if (ruleName.charAt(0) !== '-') {
               ruleName = acf.strCamelCase(ruleName);
             }
-
             css[ruleName] = ruleValue;
           }
         });
         value = css;
         break;
-      // Default.
 
+      // Default.
       default:
         // No formatting needed for "data-x" attributes.
         if (name.indexOf('data-') === 0) {
           break;
-        } // Replace names for JSX counterparts.
+        }
 
+        // Replace names for JSX counterparts.
+        name = getJSXName(name);
 
-        name = getJSXName(name); // Convert JSON values.
-
+        // Convert JSON values.
         const c1 = value.charAt(0);
-
         if (c1 === '[' || c1 === '{') {
           value = JSON.parse(value);
-        } // Convert bool values.
+        }
 
-
+        // Convert bool values.
         if (value === 'true' || value === 'false') {
           value = value === 'true';
         }
-
         break;
     }
-
     return {
       name,
       value
     };
   }
+
   /**
    * Higher Order Component used to set default block attribute values.
    *
@@ -654,87 +662,96 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @param	Component BlockListBlock The BlockListBlock Component.
    * @return	Component
    */
-
-
   const withDefaultAttributes = createHigherOrderComponent(BlockListBlock => class WrappedBlockEdit extends Component {
     constructor(props) {
-      super(props); // Extract vars.
+      super(props);
 
+      // Extract vars.
       const {
         name,
         attributes
-      } = this.props; // Only run on ACF Blocks.
+      } = this.props;
 
+      // Only run on ACF Blocks.
       const blockType = getBlockType(name);
-
       if (!blockType) {
         return;
-      } // Set unique ID and default attributes for newly added blocks.
+      }
 
+      // Check and remove any empty string attributes to match PHP behaviour.
+      Object.keys(attributes).forEach(key => {
+        if (attributes[key] === '') {
+          delete attributes[key];
+        }
+      });
 
-      if (isNewBlock(props)) {
-        attributes.id = acf.uniqid('block_');
-
-        for (let attribute in blockType.attributes) {
-          if (attributes[attribute] === undefined && blockType[attribute] !== undefined) {
-            attributes[attribute] = blockType[attribute];
+      // Backward compatibility attribute replacement.
+      const upgrades = {
+        full_height: 'fullHeight',
+        align_content: 'alignContent',
+        align_text: 'alignText'
+      };
+      Object.keys(upgrades).forEach(key => {
+        if (attributes[key] !== undefined) {
+          attributes[upgrades[key]] = attributes[key];
+        } else if (attributes[upgrades[key]] === undefined) {
+          //Check for a default
+          if (blockType[key] !== undefined) {
+            attributes[upgrades[key]] = blockType[key];
           }
         }
+        delete blockType[key];
+        delete attributes[key];
+      });
 
-        return;
-      } // Generate new ID for duplicated blocks.
-
-
-      if (isDuplicateBlock(props)) {
-        attributes.id = acf.uniqid('block_');
-        return;
+      // Set default attributes for those undefined.
+      for (let attribute in blockType.attributes) {
+        if (attributes[attribute] === undefined && blockType[attribute] !== undefined) {
+          attributes[attribute] = blockType[attribute];
+        }
       }
     }
-
     render() {
       return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockListBlock, this.props);
     }
-
   }, 'withDefaultAttributes');
   wp.hooks.addFilter('editor.BlockListBlock', 'acf/with-default-attributes', withDefaultAttributes);
+
   /**
    * The BlockSave functional component.
    *
    * @date	08/07/2020
    * @since	5.9.0
    */
-
   function BlockSave() {
     return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(InnerBlocks.Content, null);
   }
+
   /**
    * The BlockEdit component.
    *
    * @date	19/2/19
    * @since	5.7.12
    */
-
-
   class BlockEdit extends Component {
     constructor(props) {
       super(props);
       this.setup();
     }
-
     setup() {
       const {
         name,
         attributes,
         clientId
       } = this.props;
-      const blockType = getBlockType(name); // Restrict current mode.
+      const blockType = getBlockType(name);
 
+      // Restrict current mode.
       function restrictMode(modes) {
         if (!modes.includes(attributes.mode)) {
           attributes.mode = modes[0];
         }
       }
-
       if (isBlockInQueryLoop(clientId) || isSiteEditor() || isiFramedMobileDevicePreview() || isEditingTemplate()) {
         restrictMode(['preview']);
       } else {
@@ -742,18 +759,15 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
           case 'edit':
             restrictMode(['edit', 'preview']);
             break;
-
           case 'preview':
             restrictMode(['preview', 'edit']);
             break;
-
           default:
             restrictMode(['auto']);
             break;
         }
       }
     }
-
     render() {
       const {
         name,
@@ -766,29 +780,26 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
       let {
         mode
       } = attributes;
-
       if (forcePreview) {
         mode = 'preview';
-      } // Show toggle only for edit/preview modes and for blocks not in a query loop/FSE.
+      }
 
-
+      // Show toggle only for edit/preview modes and for blocks not in a query loop/FSE.
       let showToggle = blockType.supports.mode;
-
       if (mode === 'auto' || forcePreview) {
         showToggle = false;
-      } // Configure toggle variables.
+      }
 
-
+      // Configure toggle variables.
       const toggleText = mode === 'preview' ? acf.__('Switch to Edit') : acf.__('Switch to Preview');
       const toggleIcon = mode === 'preview' ? 'edit' : 'welcome-view-site';
-
       function toggleMode() {
         setAttributes({
           mode: mode === 'preview' ? 'edit' : 'preview'
         });
-      } // Return template.
+      }
 
-
+      // Return template.
       return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(Fragment, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockControls, null, showToggle && (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(ToolbarGroup, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(ToolbarButton, {
         className: "components-icon-button components-toolbar__control",
         label: toggleText,
@@ -798,41 +809,53 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
         className: "acf-block-component acf-block-panel"
       }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockForm, this.props))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockBody, this.props));
     }
-
   }
+
   /**
    * The BlockBody functional component.
    *
    * @date	19/2/19
    * @since	5.7.12
    */
-
-
   function _BlockBody(props) {
     const {
       attributes,
-      isSelected
+      isSelected,
+      name
     } = props;
     const {
       mode
     } = attributes;
-    return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", useBlockProps(), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", {
-      className: "acf-block-component acf-block-body"
-    }, mode === 'auto' && isSelected ? (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockForm, props) : mode === 'auto' && !isSelected ? (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockPreview, props) : mode === 'preview' ? (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockPreview, props) : (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockForm, props)));
-  } // Append blockIndex to component props.
+    let showForm = true;
+    let additionalClasses = 'acf-block-component acf-block-body';
+    if (mode === 'auto' && !isSelected || mode === 'preview') {
+      additionalClasses += ' acf-block-preview';
+      showForm = false;
+    }
+    if (getBlockVersion(name) > 1) {
+      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", useBlockProps({
+        className: additionalClasses
+      }), showForm ? (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockForm, props) : (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockPreview, props));
+    } else {
+      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", useBlockProps(), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", {
+        className: "acf-block-component acf-block-body"
+      }, showForm ? (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockForm, props) : (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockPreview, props)));
+    }
+  }
 
-
+  // Append blockIndex to component props.
   const BlockBody = withSelect((select, ownProps) => {
     const {
       clientId
-    } = ownProps; // Use optional rootClientId to allow discoverability of child blocks.
-
+    } = ownProps;
+    // Use optional rootClientId to allow discoverability of child blocks.
     const rootClientId = select('core/block-editor').getBlockRootClientId(clientId);
     const index = select('core/block-editor').getBlockIndex(clientId, rootClientId);
     return {
       index
     };
   })(_BlockBody);
+
   /**
    * A react component to append HTMl.
    *
@@ -842,7 +865,6 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @param	string children The html to insert.
    * @return	void
    */
-
   class Div extends Component {
     render() {
       return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", {
@@ -851,8 +873,8 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
         }
       });
     }
-
   }
+
   /**
    * A react Component for inline scripts.
    *
@@ -865,31 +887,26 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @param	type Var Description.
    * @return	type Description.
    */
-
-
   class Script extends Component {
     render() {
       return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", {
         ref: el => this.el = el
       });
     }
-
     setHTML(html) {
       $(this.el).html(`<script>${html}</script>`);
     }
-
     componentDidUpdate() {
       this.setHTML(this.props.children);
     }
-
     componentDidMount() {
       this.setHTML(this.props.children);
     }
+  }
 
-  } // Data storage for DynamicHTML components.
-
-
+  // Data storage for DynamicHTML components.
   const store = {};
+
   /**
    * DynamicHTML Class.
    *
@@ -901,189 +918,198 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @param	void
    * @return	void
    */
-
   class DynamicHTML extends Component {
     constructor(props) {
-      super(props); // Bind callbacks.
+      super(props);
 
-      this.setRef = this.setRef.bind(this); // Define default props and call setup().
+      // Bind callbacks.
+      this.setRef = this.setRef.bind(this);
 
+      // Define default props and call setup().
       this.id = '';
       this.el = false;
       this.subscribed = true;
       this.renderMethod = 'jQuery';
-      this.setup(props); // Load state.
+      this.setup(props);
 
+      // Load state.
       this.loadState();
     }
-
-    setup(props) {// Do nothing.
+    setup(props) {
+      // Do nothing.
     }
-
-    fetch() {// Do nothing.
+    fetch() {
+      // Do nothing.
     }
-
-    maybePreload(blockId) {
+    maybePreload(blockId, clientId, form) {
       if (this.state.html === undefined && !isBlockInQueryLoop(this.props.clientId)) {
         const preloadedBlocks = acf.get('preloadedBlocks');
-
+        const modeText = form ? 'form' : 'preview';
         if (preloadedBlocks && preloadedBlocks[blockId]) {
-          // Set HTML to the preloaded version.
-          this.setHtml(preloadedBlocks[blockId]); // Delete the preloaded HTML so we don't try to load it again.
+          // Ensure we only preload the correct block state (form or preview).
+          if (form && !preloadedBlocks[blockId].form || !form && preloadedBlocks[blockId].form) return false;
 
-          delete preloadedBlocks[blockId];
-          acf.set('preloadedBlocks', preloadedBlocks);
-          return true;
+          // Set HTML to the preloaded version.
+          return preloadedBlocks[blockId].html.replaceAll(blockId, clientId);
         }
       }
-
       return false;
     }
-
     loadState() {
       this.state = store[this.id] || {};
     }
-
     setState(state) {
-      store[this.id] = _objectSpread(_objectSpread({}, this.state), state); // Update component state if subscribed.
-      // - Allows AJAX callback to update store without modifying state of an unmounted component.
+      store[this.id] = _objectSpread(_objectSpread({}, this.state), state);
 
+      // Update component state if subscribed.
+      // - Allows AJAX callback to update store without modifying state of an unmounted component.
       if (this.subscribed) {
         super.setState(state);
       }
     }
-
     setHtml(html) {
-      html = html ? html.trim() : ''; // Bail early if html has not changed.
+      html = html ? html.trim() : '';
 
+      // Bail early if html has not changed.
       if (html === this.state.html) {
         return;
-      } // Update state.
+      }
 
-
+      // Update state.
       const state = {
         html
       };
-
       if (this.renderMethod === 'jsx') {
-        state.jsx = acf.parseJSX(html);
+        state.jsx = acf.parseJSX(html, getBlockVersion(this.props.name));
+
+        // Handle templates which don't contain any valid JSX parsable elements.
+        if (!state.jsx) {
+          console.warn('Your ACF block template contains no valid HTML elements. Appending a empty div to prevent React JS errors.');
+          state.html += '<div></div>';
+          state.jsx = acf.parseJSX(state.html, getBlockVersion(this.props.name));
+        }
+
+        // If we've got an object (as an array) find the first valid React ref.
+        if (Array.isArray(state.jsx)) {
+          let refElement = state.jsx.find(element => React.isValidElement(element));
+          state.ref = refElement.ref;
+        } else {
+          state.ref = state.jsx.ref;
+        }
         state.$el = $(this.el);
       } else {
         state.$el = $(html);
       }
-
       this.setState(state);
     }
-
     setRef(el) {
       this.el = el;
     }
-
     render() {
       // Render JSX.
       if (this.state.jsx) {
-        return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", {
-          ref: this.setRef
-        }, this.state.jsx);
-      } // Return HTML.
+        // If we're a v2+ block, use the jsx element itself as our ref.
+        if (getBlockVersion(this.props.name) > 1) {
+          this.setRef(this.state.jsx);
+          return this.state.jsx;
+        } else {
+          return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", {
+            ref: this.setRef
+          }, this.state.jsx);
+        }
+      }
 
-
+      // Return HTML.
       return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", {
         ref: this.setRef
       }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(Placeholder, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(Spinner, null)));
     }
-
-    shouldComponentUpdate(_ref6, _ref7) {
+    shouldComponentUpdate(_ref4, _ref5) {
       let {
         index
-      } = _ref6;
+      } = _ref4;
       let {
         html
-      } = _ref7;
-
+      } = _ref5;
       if (index !== this.props.index) {
         this.componentWillMove();
       }
-
       return html !== this.state.html;
     }
-
     display(context) {
       // This method is called after setting new HTML and the Component render.
       // The jQuery render method simply needs to move $el into place.
       if (this.renderMethod === 'jQuery') {
         const $el = this.state.$el;
         const $prevParent = $el.parent();
-        const $thisParent = $(this.el); // Move $el into place.
+        const $thisParent = $(this.el);
 
-        $thisParent.html($el); // Special case for reusable blocks.
+        // Move $el into place.
+        $thisParent.html($el);
+
+        // Special case for reusable blocks.
         // Multiple instances of the same reusable block share the same block id.
         // This causes all instances to share the same state (cool), which unfortunately
         // pulls $el back and forth between the last rendered reusable block.
         // This simple fix leaves a "clone" behind :)
-
         if ($prevParent.length && $prevParent[0] !== $thisParent[0]) {
           $prevParent.html($el.clone());
         }
-      } // Call context specific method.
+      }
 
-
+      // Call context specific method.
       switch (context) {
         case 'append':
           this.componentDidAppend();
           break;
-
         case 'remount':
           this.componentDidRemount();
           break;
       }
     }
-
     componentDidMount() {
       // Fetch on first load.
       if (this.state.html === undefined) {
-        //console.log('componentDidMount', this.id);
-        this.fetch(); // Or remount existing HTML.
+        this.fetch();
+
+        // Or remount existing HTML.
       } else {
         this.display('remount');
       }
     }
-
     componentDidUpdate(prevProps, prevState) {
       // HTML has changed.
       this.display('append');
     }
-
     componentDidAppend() {
       acf.doAction('append', this.state.$el);
     }
-
     componentWillUnmount() {
-      acf.doAction('unmount', this.state.$el); // Unsubscribe this component from state.
+      acf.doAction('unmount', this.state.$el);
 
+      // Unsubscribe this component from state.
       this.subscribed = false;
     }
-
     componentDidRemount() {
-      this.subscribed = true; // Use setTimeout to avoid incorrect timing of events.
+      this.subscribed = true;
+
+      // Use setTimeout to avoid incorrect timing of events.
       // React will unmount and mount components in DOM order.
       // This means a new component can be mounted before an old one is unmounted.
       // ACF shares $el across new/old components which is un-React-like.
       // This timout ensures that unmounting occurs before remounting.
-
       setTimeout(() => {
         acf.doAction('remount', this.state.$el);
       });
     }
-
     componentWillMove() {
       acf.doAction('unmount', this.state.$el);
       setTimeout(() => {
         acf.doAction('remount', this.state.$el);
       });
     }
-
   }
+
   /**
    * BlockForm Class.
    *
@@ -1095,59 +1121,73 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @param	string id the block id.
    * @return	void
    */
-
-
   class BlockForm extends DynamicHTML {
-    setup(_ref8) {
+    setup(_ref6) {
       let {
-        attributes
-      } = _ref8;
-      this.id = `BlockForm-${attributes.id}`;
+        clientId
+      } = _ref6;
+      this.id = `BlockForm-${clientId}`;
     }
-
     fetch() {
       // Extract props.
       const {
         attributes,
-        context
-      } = this.props; // Try preloaded data first.
-      // const preloaded = this.maybePreload( attributes.id );
-      //
-      // if ( preloaded ) {
-      // 	return;
-      // }
-      // Request AJAX and update HTML on complete.
+        context,
+        clientId
+      } = this.props;
+      const hash = createBlockAttributesHash(attributes, context);
 
+      // Try preloaded data first.
+      const preloaded = this.maybePreload(hash, clientId, true);
+      if (preloaded) {
+        this.setHtml(preloaded);
+        return;
+      }
+
+      // Request AJAX and update HTML on complete.
       fetchBlock({
         attributes,
         context,
+        clientId,
         query: {
           form: true
         }
-      }).done(_ref9 => {
+      }).done(_ref7 => {
         let {
           data
-        } = _ref9;
-        this.setHtml(data.form);
+        } = _ref7;
+        this.setHtml(data.form.replaceAll(data.clientId, clientId));
       });
     }
+    componentDidRemount() {
+      super.componentDidRemount();
+      const {
+        $el
+      } = this.state;
 
+      // Make sure our on append events are registered.
+      if ($el.data('acf-events-added') !== true) {
+        this.componentDidAppend();
+      }
+    }
     componentDidAppend() {
-      super.componentDidAppend(); // Extract props.
+      super.componentDidAppend();
 
+      // Extract props.
       const {
         attributes,
-        setAttributes
+        setAttributes,
+        clientId
       } = this.props;
       const props = this.props;
       const {
         $el
-      } = this.state; // Callback for updating block data.
+      } = this.state;
 
+      // Callback for updating block data.
       function serializeData() {
         let silent = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-        const data = acf.serialize($el, `acf-${attributes.id}`); //console.log('serializeData', props, data);
-
+        const data = acf.serialize($el, `acf-${clientId}`);
         if (silent) {
           attributes.data = data;
         } else {
@@ -1155,22 +1195,26 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
             data
           });
         }
-      } // Add events.
+      }
 
-
+      // Add events.
       let timeout = false;
       $el.on('change keyup', () => {
         clearTimeout(timeout);
         timeout = setTimeout(serializeData, 300);
-      }); // Ensure newly added block is saved with data.
-      // Do it silently to avoid triggering a preview render.
+      });
 
+      // Log initialization for remount check on the persistent element.
+      $el.data('acf-events-added', true);
+
+      // Ensure newly added block is saved with data.
+      // Do it silently to avoid triggering a preview render.
       if (!attributes.data) {
         serializeData(true);
       }
     }
-
   }
+
   /**
    * BlockPreview Class.
    *
@@ -1182,132 +1226,163 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @param	string id the block id.
    * @return	void
    */
-
-
   class BlockPreview extends DynamicHTML {
-    setup(_ref10) {
+    setup(_ref8) {
       let {
-        attributes,
+        clientId,
         name
-      } = _ref10;
+      } = _ref8;
       const blockType = getBlockType(name);
       const contextPostId = acf.isget(this.props, 'context', 'postId');
-      this.id = `BlockPreview-${attributes.id}`; // Apply the contextPostId to the ID if set to stop query loop ID duplication.
+      this.id = `BlockPreview-${clientId}`;
 
+      // Apply the contextPostId to the ID if set to stop query loop ID duplication.
       if (contextPostId) {
-        this.id = `BlockPreview-${attributes.id}-${contextPostId}`;
+        this.id = `BlockPreview-${clientId}-${contextPostId}`;
       }
-
       if (blockType.supports.jsx) {
         this.renderMethod = 'jsx';
-      } //console.log('setup', this.id);
-
+      }
     }
-
     fetch() {
       let args = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
       const {
         attributes = this.props.attributes,
+        clientId = this.props.clientId,
         context = this.props.context,
         delay = 0
-      } = args; // Remember attributes used to fetch HTML.
+      } = args;
+      const {
+        name
+      } = this.props;
 
+      // Remember attributes used to fetch HTML.
       this.setState({
-        prevAttributes: attributes
-      }); // Try preloaded data first.
+        prevAttributes: attributes,
+        prevContext: context
+      });
+      const hash = createBlockAttributesHash(attributes, context);
 
-      const preloaded = this.maybePreload(attributes.id);
-      if (preloaded) return; // Request AJAX and update HTML on complete.
+      // Try preloaded data first.
+      let preloaded = this.maybePreload(hash, clientId, false);
+      if (preloaded) {
+        if (getBlockVersion(name) == 1) {
+          preloaded = '<div class="acf-block-preview">' + preloaded + '</div>';
+        }
+        this.setHtml(preloaded);
+        return;
+      }
 
+      // Request AJAX and update HTML on complete.
       fetchBlock({
         attributes,
         context,
+        clientId,
         query: {
           preview: true
         },
         delay
-      }).done(_ref11 => {
+      }).done(_ref9 => {
         let {
           data
-        } = _ref11;
-        this.setHtml(data.preview);
+        } = _ref9;
+        let replaceHtml = data.preview.replaceAll(data.clientId, clientId);
+        if (getBlockVersion(name) == 1) {
+          replaceHtml = '<div class="acf-block-preview">' + replaceHtml + '</div>';
+        }
+        this.setHtml(replaceHtml);
       });
     }
-
     componentDidAppend() {
-      super.componentDidAppend(); // Extract props.
-
-      const {
-        attributes
-      } = this.props;
-      const {
-        $el
-      } = this.state; // Generate action friendly type.
-
-      const type = attributes.name.replace('acf/', ''); // Do action.
-
-      acf.doAction('render_block_preview', $el, attributes);
-      acf.doAction(`render_block_preview/type=${type}`, $el, attributes);
+      super.componentDidAppend();
+      this.renderBlockPreviewEvent();
     }
-
     shouldComponentUpdate(nextProps, nextState) {
       const nextAttributes = nextProps.attributes;
-      const thisAttributes = this.props.attributes; // Update preview if block data has changed.
+      const thisAttributes = this.props.attributes;
 
-      if (!compareObjects(nextAttributes, thisAttributes)) {
-        let delay = 0; // Delay fetch when editing className or anchor to simulate consistent logic to custom fields.
+      // Update preview if block data has changed.
+      if (!compareObjects(nextAttributes, thisAttributes) || !compareObjects(nextProps.context, this.props.context)) {
+        let delay = 0;
 
+        // Delay fetch when editing className or anchor to simulate consistent logic to custom fields.
         if (nextAttributes.className !== thisAttributes.className) {
           delay = 300;
         }
-
         if (nextAttributes.anchor !== thisAttributes.anchor) {
           delay = 300;
         }
-
         this.fetch({
           attributes: nextAttributes,
+          context: nextProps.context,
           delay
         });
       }
-
       return super.shouldComponentUpdate(nextProps, nextState);
     }
+    renderBlockPreviewEvent() {
+      // Extract props.
+      const {
+        attributes,
+        name
+      } = this.props;
+      const {
+        $el,
+        ref
+      } = this.state;
+      var blockElement;
 
+      // Generate action friendly type.
+      const type = attributes.name.replace('acf/', '');
+      if (ref && ref.current) {
+        // We've got a react ref from a JSX container. Use the parent as the blockElement
+        blockElement = $(ref.current).parent();
+      } else if (getBlockVersion(name) == 1) {
+        blockElement = $el;
+      } else {
+        blockElement = $el.parents('.acf-block-preview');
+      }
+
+      // Do action.
+      acf.doAction('render_block_preview', blockElement, attributes);
+      acf.doAction(`render_block_preview/type=${type}`, blockElement, attributes);
+    }
     componentDidRemount() {
-      super.componentDidRemount(); // Update preview if data has changed since last render (changing from "edit" to "preview").
+      super.componentDidRemount();
 
-      if (!compareObjects(this.state.prevAttributes, this.props.attributes)) {
-        //console.log('componentDidRemount', this.id);
+      // Update preview if data has changed since last render (changing from "edit" to "preview").
+      if (!compareObjects(this.state.prevAttributes, this.props.attributes) || !compareObjects(this.state.prevContext, this.props.context)) {
         this.fetch();
       }
-    }
 
+      // Fire the block preview event so blocks can reinit JS elements.
+      // React reusing DOM elements covers any potential race condition from the above fetch.
+      this.renderBlockPreviewEvent();
+    }
   }
+
   /**
    * Initializes ACF Blocks logic and registration.
    *
    * @since 5.9.0
    */
-
-
   function initialize() {
     // Add support for WordPress versions before 5.2.
     if (!wp.blockEditor) {
       wp.blockEditor = wp.editor;
-    } // Register block types.
+    }
 
-
+    // Register block types.
     const blockTypes = acf.get('blockTypes');
-
     if (blockTypes) {
       blockTypes.map(registerBlockType);
     }
-  } // Run the initialize callback during the "prepare" action.
+  }
+
+  // Run the initialize callback during the "prepare" action.
   // This ensures that all localized data is available and that blocks are registered before the WP editor has been instantiated.
-
-
   acf.addAction('prepare', initialize);
+
   /**
    * Returns a valid vertical alignment.
    *
@@ -1317,12 +1392,12 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @param	string align A vertical alignment.
    * @return	string
    */
-
   function validateVerticalAlignment(align) {
     const ALIGNMENTS = ['top', 'center', 'bottom'];
     const DEFAULT = 'top';
     return ALIGNMENTS.includes(align) ? align : DEFAULT;
   }
+
   /**
    * Returns a valid horizontal alignment.
    *
@@ -1332,13 +1407,12 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @param	string align A horizontal alignment.
    * @return	string
    */
-
-
   function validateHorizontalAlignment(align) {
     const ALIGNMENTS = ['left', 'center', 'right'];
     const DEFAULT = acf.get('rtl') ? 'right' : 'left';
     return ALIGNMENTS.includes(align) ? align : DEFAULT;
   }
+
   /**
    * Returns a valid matrix alignment.
    *
@@ -1350,46 +1424,17 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @param	string align A matrix alignment.
    * @return	string
    */
-
-
   function validateMatrixAlignment(align) {
     const DEFAULT = 'center center';
-
     if (align) {
       const [y, x] = align.split(' ');
       return `${validateVerticalAlignment(y)} ${validateHorizontalAlignment(x)}`;
     }
-
     return DEFAULT;
-  } // Dependencies.
-
-
-  const {
-    AlignmentToolbar,
-    BlockVerticalAlignmentToolbar
-  } = wp.blockEditor;
-  const BlockAlignmentMatrixToolbar = wp.blockEditor.__experimentalBlockAlignmentMatrixToolbar || wp.blockEditor.BlockAlignmentMatrixToolbar; // Gutenberg v10.x begins transition from Toolbar components to Control components.
-
-  const BlockAlignmentMatrixControl = wp.blockEditor.__experimentalBlockAlignmentMatrixControl || wp.blockEditor.BlockAlignmentMatrixControl;
-  const BlockFullHeightAlignmentControl = wp.blockEditor.__experimentalBlockFullHeightAligmentControl || wp.blockEditor.__experimentalBlockFullHeightAlignmentControl || wp.blockEditor.BlockFullHeightAlignmentControl;
-  /**
-   * Appends extra attributes for block types that support align_content.
-   *
-   * @date	08/07/2020
-   * @since	5.9.0
-   *
-   * @param	object attributes The block type attributes.
-   * @return	object
-   */
-
-  function withAlignContentAttributes(attributes) {
-    attributes.align_content = {
-      type: 'string'
-    };
-    return attributes;
   }
+
   /**
-   * A higher order component adding align_content editing functionality.
+   * A higher order component adding alignContent editing functionality.
    *
    * @date	08/07/2020
    * @since	5.9.0
@@ -1398,35 +1443,32 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @param	object blockType The block type settings.
    * @return	component
    */
-
-
   function withAlignContentComponent(OriginalBlockEdit, blockType) {
     // Determine alignment vars
-    let type = blockType.supports.align_content;
+    let type = blockType.supports.align_content || blockType.supports.alignContent;
     let AlignmentComponent;
     let validateAlignment;
-
     switch (type) {
       case 'matrix':
         AlignmentComponent = BlockAlignmentMatrixControl || BlockAlignmentMatrixToolbar;
         validateAlignment = validateMatrixAlignment;
         break;
-
       default:
         AlignmentComponent = BlockVerticalAlignmentToolbar;
         validateAlignment = validateVerticalAlignment;
         break;
-    } // Ensure alignment component exists.
+    }
 
-
+    // Ensure alignment component exists.
     if (AlignmentComponent === undefined) {
       console.warn(`The "${type}" alignment component was not found.`);
       return OriginalBlockEdit;
-    } // Ensure correct block attribute data is sent in intial preview AJAX request.
+    }
 
+    // Ensure correct block attribute data is sent in intial preview AJAX request.
+    blockType.alignContent = validateAlignment(blockType.alignContent);
 
-    blockType.align_content = validateAlignment(blockType.align_content); // Return wrapped component.
-
+    // Return wrapped component.
     return class WrappedBlockEdit extends Component {
       render() {
         const {
@@ -1434,45 +1476,26 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
           setAttributes
         } = this.props;
         const {
-          align_content
+          alignContent
         } = attributes;
-
-        function onChangeAlignContent(align_content) {
+        function onChangeAlignContent(alignContent) {
           setAttributes({
-            align_content: validateAlignment(align_content)
+            alignContent: validateAlignment(alignContent)
           });
         }
-
         return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(Fragment, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockControls, {
           group: "block"
         }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(AlignmentComponent, {
           label: acf.__('Change content alignment'),
-          value: validateAlignment(align_content),
+          value: validateAlignment(alignContent),
           onChange: onChangeAlignContent
         })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(OriginalBlockEdit, this.props));
       }
-
     };
   }
-  /**
-   * Appends extra attributes for block types that support align_text.
-   *
-   * @date	08/07/2020
-   * @since	5.9.0
-   *
-   * @param	object attributes The block type attributes.
-   * @return	object
-   */
 
-
-  function withAlignTextAttributes(attributes) {
-    attributes.align_text = {
-      type: 'string'
-    };
-    return attributes;
-  }
   /**
-   * A higher order component adding align_text editing functionality.
+   * A higher order component adding alignText editing functionality.
    *
    * @date	08/07/2020
    * @since	5.9.0
@@ -1481,13 +1504,13 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @param	object blockType The block type settings.
    * @return	component
    */
-
-
   function withAlignTextComponent(OriginalBlockEdit, blockType) {
-    const validateAlignment = validateHorizontalAlignment; // Ensure correct block attribute data is sent in intial preview AJAX request.
+    const validateAlignment = validateHorizontalAlignment;
 
-    blockType.align_text = validateAlignment(blockType.align_text); // Return wrapped component.
+    // Ensure correct block attribute data is sent in intial preview AJAX request.
+    blockType.alignText = validateAlignment(blockType.alignText);
 
+    // Return wrapped component.
     return class WrappedBlockEdit extends Component {
       render() {
         const {
@@ -1495,42 +1518,23 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
           setAttributes
         } = this.props;
         const {
-          align_text
+          alignText
         } = attributes;
-
-        function onChangeAlignText(align_text) {
+        function onChangeAlignText(alignText) {
           setAttributes({
-            align_text: validateAlignment(align_text)
+            alignText: validateAlignment(alignText)
           });
         }
-
         return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(Fragment, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockControls, {
           group: "block"
         }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(AlignmentToolbar, {
-          value: validateAlignment(align_text),
+          value: validateAlignment(alignText),
           onChange: onChangeAlignText
         })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(OriginalBlockEdit, this.props));
       }
-
     };
   }
-  /**
-   * Appends extra attributes for block types that support full height.
-   *
-   * @date	08/07/2020
-   * @since	5.9.0
-   *
-   * @param	object attributes The block type attributes.
-   * @return	object
-   */
 
-
-  function withFullHeightAttributes(attributes) {
-    attributes.full_height = {
-      type: 'boolean'
-    };
-    return attributes;
-  }
   /**
    * A higher order component adding full height support.
    *
@@ -1541,11 +1545,10 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @param	object blockType The block type settings.
    * @return	component
    */
-
-
   function withFullHeightComponent(OriginalBlockEdit, blockType) {
-    if (!BlockFullHeightAlignmentControl) return OriginalBlockEdit; // Return wrapped component.
+    if (!BlockFullHeightAlignmentControl) return OriginalBlockEdit;
 
+    // Return wrapped component.
     return class WrappedBlockEdit extends Component {
       render() {
         const {
@@ -1553,24 +1556,53 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
           setAttributes
         } = this.props;
         const {
-          full_height
+          fullHeight
         } = attributes;
-
-        function onToggleFullHeight(full_height) {
+        function onToggleFullHeight(fullHeight) {
           setAttributes({
-            full_height
+            fullHeight
           });
         }
-
         return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(Fragment, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockControls, {
           group: "block"
         }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockFullHeightAlignmentControl, {
-          isActive: full_height,
+          isActive: fullHeight,
           onToggle: onToggleFullHeight
         })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(OriginalBlockEdit, this.props));
       }
-
     };
+  }
+
+  /**
+   * Appends a backwards compatibility attribute for conversion.
+   *
+   * @since	6.0
+   *
+   * @param	object attributes The block type attributes.
+   * @return	object
+   */
+  function addBackCompatAttribute(attributes, new_attribute, type) {
+    attributes[new_attribute] = {
+      type: type
+    };
+    return attributes;
+  }
+
+  /**
+   * Create a block hash from attributes
+   *
+   * @since 6.0
+   *
+   * @param object attributes The block type attributes.
+   * @param object context The current block context object.
+   * @return string
+   */
+  function createBlockAttributesHash(attributes, context) {
+    attributes['_acf_context'] = context;
+    return md5(JSON.stringify(Object.keys(attributes).sort().reduce((acc, currValue) => {
+      acc[currValue] = attributes[currValue];
+      return acc;
+    }, {})));
   }
 })(jQuery);
 
@@ -1580,7 +1612,7 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
 /*!****************************************************************************!*\
   !*** ./src/advanced-custom-fields-pro/assets/src/js/pro/_acf-jsx-names.js ***!
   \****************************************************************************/
-/***/ (() => {
+/***/ (function() {
 
 (function ($, undefined) {
   acf.jsxNameReplacements = {
@@ -1678,6 +1710,7 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
     fontvariant: 'fontVariant',
     fontweight: 'fontWeight',
     for: 'htmlFor',
+    foreignobject: 'foreignObject',
     formaction: 'formAction',
     formenctype: 'formEncType',
     formmethod: 'formMethod',
@@ -1893,7 +1926,7 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
 /*!*****************************************!*\
   !*** ./node_modules/charenc/charenc.js ***!
   \*****************************************/
-/***/ ((module) => {
+/***/ (function(module) {
 
 var charenc = {
   // UTF-8 encoding
@@ -1936,7 +1969,7 @@ module.exports = charenc;
 /*!*************************************!*\
   !*** ./node_modules/crypt/crypt.js ***!
   \*************************************/
-/***/ ((module) => {
+/***/ (function(module) {
 
 (function() {
   var base64map
@@ -2042,7 +2075,7 @@ module.exports = charenc;
 /*!*****************************************!*\
   !*** ./node_modules/is-buffer/index.js ***!
   \*****************************************/
-/***/ ((module) => {
+/***/ (function(module) {
 
 /*!
  * Determine if an object is a Buffer
@@ -2073,7 +2106,7 @@ function isSlowBuffer (obj) {
 /*!*********************************!*\
   !*** ./node_modules/md5/md5.js ***!
   \*********************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 (function(){
   var crypt = __webpack_require__(/*! crypt */ "./node_modules/crypt/crypt.js"),
@@ -2239,115 +2272,16 @@ function isSlowBuffer (obj) {
 
 /***/ }),
 
-/***/ "./node_modules/object-assign/index.js":
-/*!*********************************************!*\
-  !*** ./node_modules/object-assign/index.js ***!
-  \*********************************************/
-/***/ ((module) => {
-
-"use strict";
-/*
-object-assign
-(c) Sindre Sorhus
-@license MIT
-*/
-
-
-/* eslint-disable no-unused-vars */
-var getOwnPropertySymbols = Object.getOwnPropertySymbols;
-var hasOwnProperty = Object.prototype.hasOwnProperty;
-var propIsEnumerable = Object.prototype.propertyIsEnumerable;
-
-function toObject(val) {
-	if (val === null || val === undefined) {
-		throw new TypeError('Object.assign cannot be called with null or undefined');
-	}
-
-	return Object(val);
-}
-
-function shouldUseNative() {
-	try {
-		if (!Object.assign) {
-			return false;
-		}
-
-		// Detect buggy property enumeration order in older V8 versions.
-
-		// https://bugs.chromium.org/p/v8/issues/detail?id=4118
-		var test1 = new String('abc');  // eslint-disable-line no-new-wrappers
-		test1[5] = 'de';
-		if (Object.getOwnPropertyNames(test1)[0] === '5') {
-			return false;
-		}
-
-		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
-		var test2 = {};
-		for (var i = 0; i < 10; i++) {
-			test2['_' + String.fromCharCode(i)] = i;
-		}
-		var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
-			return test2[n];
-		});
-		if (order2.join('') !== '0123456789') {
-			return false;
-		}
-
-		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
-		var test3 = {};
-		'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
-			test3[letter] = letter;
-		});
-		if (Object.keys(Object.assign({}, test3)).join('') !==
-				'abcdefghijklmnopqrst') {
-			return false;
-		}
-
-		return true;
-	} catch (err) {
-		// We don't expect any of the above to throw, but better to be safe.
-		return false;
-	}
-}
-
-module.exports = shouldUseNative() ? Object.assign : function (target, source) {
-	var from;
-	var to = toObject(target);
-	var symbols;
-
-	for (var s = 1; s < arguments.length; s++) {
-		from = Object(arguments[s]);
-
-		for (var key in from) {
-			if (hasOwnProperty.call(from, key)) {
-				to[key] = from[key];
-			}
-		}
-
-		if (getOwnPropertySymbols) {
-			symbols = getOwnPropertySymbols(from);
-			for (var i = 0; i < symbols.length; i++) {
-				if (propIsEnumerable.call(from, symbols[i])) {
-					to[symbols[i]] = from[symbols[i]];
-				}
-			}
-		}
-	}
-
-	return to;
-};
-
-
-/***/ }),
-
 /***/ "./node_modules/react/cjs/react.development.js":
 /*!*****************************************************!*\
   !*** ./node_modules/react/cjs/react.development.js ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/** @license React v17.0.2
+/* module decorator */ module = __webpack_require__.nmd(module);
+/**
+ * @license React
  * react.development.js
  *
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -2360,64 +2294,37 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 if (true) {
   (function() {
-'use strict';
 
-var _assign = __webpack_require__(/*! object-assign */ "./node_modules/object-assign/index.js");
+          'use strict';
 
-// TODO: this is special because it gets imported during build.
-var ReactVersion = '17.0.2';
+/* global __REACT_DEVTOOLS_GLOBAL_HOOK__ */
+if (
+  typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined' &&
+  typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart ===
+    'function'
+) {
+  __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(new Error());
+}
+          var ReactVersion = '18.2.0';
 
 // ATTENTION
 // When adding new symbols to this file,
 // Please consider also adding to 'react-devtools-shared/src/backend/ReactSymbols'
-// The Symbol used to tag the ReactElement-like types. If there is no native Symbol
-// nor polyfill, then a plain number is used for performance.
-var REACT_ELEMENT_TYPE = 0xeac7;
-var REACT_PORTAL_TYPE = 0xeaca;
-exports.Fragment = 0xeacb;
-exports.StrictMode = 0xeacc;
-exports.Profiler = 0xead2;
-var REACT_PROVIDER_TYPE = 0xeacd;
-var REACT_CONTEXT_TYPE = 0xeace;
-var REACT_FORWARD_REF_TYPE = 0xead0;
-exports.Suspense = 0xead1;
-var REACT_SUSPENSE_LIST_TYPE = 0xead8;
-var REACT_MEMO_TYPE = 0xead3;
-var REACT_LAZY_TYPE = 0xead4;
-var REACT_BLOCK_TYPE = 0xead9;
-var REACT_SERVER_BLOCK_TYPE = 0xeada;
-var REACT_FUNDAMENTAL_TYPE = 0xead5;
-var REACT_SCOPE_TYPE = 0xead7;
-var REACT_OPAQUE_ID_TYPE = 0xeae0;
-var REACT_DEBUG_TRACING_MODE_TYPE = 0xeae1;
-var REACT_OFFSCREEN_TYPE = 0xeae2;
-var REACT_LEGACY_HIDDEN_TYPE = 0xeae3;
-
-if (typeof Symbol === 'function' && Symbol.for) {
-  var symbolFor = Symbol.for;
-  REACT_ELEMENT_TYPE = symbolFor('react.element');
-  REACT_PORTAL_TYPE = symbolFor('react.portal');
-  exports.Fragment = symbolFor('react.fragment');
-  exports.StrictMode = symbolFor('react.strict_mode');
-  exports.Profiler = symbolFor('react.profiler');
-  REACT_PROVIDER_TYPE = symbolFor('react.provider');
-  REACT_CONTEXT_TYPE = symbolFor('react.context');
-  REACT_FORWARD_REF_TYPE = symbolFor('react.forward_ref');
-  exports.Suspense = symbolFor('react.suspense');
-  REACT_SUSPENSE_LIST_TYPE = symbolFor('react.suspense_list');
-  REACT_MEMO_TYPE = symbolFor('react.memo');
-  REACT_LAZY_TYPE = symbolFor('react.lazy');
-  REACT_BLOCK_TYPE = symbolFor('react.block');
-  REACT_SERVER_BLOCK_TYPE = symbolFor('react.server.block');
-  REACT_FUNDAMENTAL_TYPE = symbolFor('react.fundamental');
-  REACT_SCOPE_TYPE = symbolFor('react.scope');
-  REACT_OPAQUE_ID_TYPE = symbolFor('react.opaque.id');
-  REACT_DEBUG_TRACING_MODE_TYPE = symbolFor('react.debug_trace_mode');
-  REACT_OFFSCREEN_TYPE = symbolFor('react.offscreen');
-  REACT_LEGACY_HIDDEN_TYPE = symbolFor('react.legacy_hidden');
-}
-
-var MAYBE_ITERATOR_SYMBOL = typeof Symbol === 'function' && Symbol.iterator;
+// The Symbol used to tag the ReactElement-like types.
+var REACT_ELEMENT_TYPE = Symbol.for('react.element');
+var REACT_PORTAL_TYPE = Symbol.for('react.portal');
+var REACT_FRAGMENT_TYPE = Symbol.for('react.fragment');
+var REACT_STRICT_MODE_TYPE = Symbol.for('react.strict_mode');
+var REACT_PROFILER_TYPE = Symbol.for('react.profiler');
+var REACT_PROVIDER_TYPE = Symbol.for('react.provider');
+var REACT_CONTEXT_TYPE = Symbol.for('react.context');
+var REACT_FORWARD_REF_TYPE = Symbol.for('react.forward_ref');
+var REACT_SUSPENSE_TYPE = Symbol.for('react.suspense');
+var REACT_SUSPENSE_LIST_TYPE = Symbol.for('react.suspense_list');
+var REACT_MEMO_TYPE = Symbol.for('react.memo');
+var REACT_LAZY_TYPE = Symbol.for('react.lazy');
+var REACT_OFFSCREEN_TYPE = Symbol.for('react.offscreen');
+var MAYBE_ITERATOR_SYMBOL = Symbol.iterator;
 var FAUX_ITERATOR_SYMBOL = '@@iterator';
 function getIteratorFn(maybeIterable) {
   if (maybeIterable === null || typeof maybeIterable !== 'object') {
@@ -2449,7 +2356,14 @@ var ReactCurrentDispatcher = {
  * should suspend for if it needs to.
  */
 var ReactCurrentBatchConfig = {
-  transition: 0
+  transition: null
+};
+
+var ReactCurrentActQueue = {
+  current: null,
+  // Used to reproduce behavior of `batchedUpdates` in legacy mode.
+  isBatchingLegacy: false,
+  didScheduleLegacyUpdate: false
 };
 
 /**
@@ -2502,24 +2416,27 @@ function setExtraStackFrame(stack) {
   };
 }
 
-/**
- * Used by act() to track whether you're inside an act() scope.
- */
-var IsSomeRendererActing = {
-  current: false
-};
+// -----------------------------------------------------------------------------
+
+var enableScopeAPI = false; // Experimental Create Event Handle API.
+var enableCacheElement = false;
+var enableTransitionTracing = false; // No known bugs, but needs performance testing
+
+var enableLegacyHidden = false; // Enables unstable_avoidThisFallback feature in Fiber
+// stuff. Intended to enable React core members to more easily debug scheduling
+// issues in DEV builds.
+
+var enableDebugTracing = false; // Track which Fiber(s) schedule render work.
 
 var ReactSharedInternals = {
   ReactCurrentDispatcher: ReactCurrentDispatcher,
   ReactCurrentBatchConfig: ReactCurrentBatchConfig,
-  ReactCurrentOwner: ReactCurrentOwner,
-  IsSomeRendererActing: IsSomeRendererActing,
-  // Used by renderers to avoid bundling object-assign twice in UMD bundles:
-  assign: _assign
+  ReactCurrentOwner: ReactCurrentOwner
 };
 
 {
   ReactSharedInternals.ReactDebugCurrentFrame = ReactDebugCurrentFrame;
+  ReactSharedInternals.ReactCurrentActQueue = ReactCurrentActQueue;
 }
 
 // by calls to these methods by a Babel plugin.
@@ -2529,20 +2446,24 @@ var ReactSharedInternals = {
 
 function warn(format) {
   {
-    for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      args[_key - 1] = arguments[_key];
-    }
+    {
+      for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
+      }
 
-    printWarning('warn', format, args);
+      printWarning('warn', format, args);
+    }
   }
 }
 function error(format) {
   {
-    for (var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
-      args[_key2 - 1] = arguments[_key2];
-    }
+    {
+      for (var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+        args[_key2 - 1] = arguments[_key2];
+      }
 
-    printWarning('error', format, args);
+      printWarning('error', format, args);
+    }
   }
 }
 
@@ -2556,10 +2477,11 @@ function printWarning(level, format, args) {
     if (stack !== '') {
       format += '%s';
       args = args.concat([stack]);
-    }
+    } // eslint-disable-next-line react-internal/safe-string-coercion
+
 
     var argsWithFormat = args.map(function (item) {
-      return '' + item;
+      return String(item);
     }); // Careful: RN currently depends on this prefix
 
     argsWithFormat.unshift('Warning: ' + format); // We intentionally don't use spread (or .apply) directly because it
@@ -2657,6 +2579,8 @@ var ReactNoopUpdateQueue = {
   }
 };
 
+var assign = Object.assign;
+
 var emptyObject = {};
 
 {
@@ -2705,10 +2629,8 @@ Component.prototype.isReactComponent = {};
  */
 
 Component.prototype.setState = function (partialState, callback) {
-  if (!(typeof partialState === 'object' || typeof partialState === 'function' || partialState == null)) {
-    {
-      throw Error( "setState(...): takes an object of state variables to update or a function which returns an object of state variables." );
-    }
+  if (typeof partialState !== 'object' && typeof partialState !== 'function' && partialState != null) {
+    throw new Error('setState(...): takes an object of state variables to update or a ' + 'function which returns an object of state variables.');
   }
 
   this.updater.enqueueSetState(this, partialState, callback, 'setState');
@@ -2780,8 +2702,7 @@ function PureComponent(props, context, updater) {
 var pureComponentPrototype = PureComponent.prototype = new ComponentDummy();
 pureComponentPrototype.constructor = PureComponent; // Avoid an extra prototype jump for these methods.
 
-_assign(pureComponentPrototype, Component.prototype);
-
+assign(pureComponentPrototype, Component.prototype);
 pureComponentPrototype.isPureReactComponent = true;
 
 // an immutable object with a single mutable value
@@ -2797,16 +2718,97 @@ function createRef() {
   return refObject;
 }
 
-function getWrappedName(outerType, innerType, wrapperName) {
-  var functionName = innerType.displayName || innerType.name || '';
-  return outerType.displayName || (functionName !== '' ? wrapperName + "(" + functionName + ")" : wrapperName);
+var isArrayImpl = Array.isArray; // eslint-disable-next-line no-redeclare
+
+function isArray(a) {
+  return isArrayImpl(a);
 }
+
+/*
+ * The `'' + value` pattern (used in in perf-sensitive code) throws for Symbol
+ * and Temporal.* types. See https://github.com/facebook/react/pull/22064.
+ *
+ * The functions in this module will throw an easier-to-understand,
+ * easier-to-debug exception with a clear errors message message explaining the
+ * problem. (Instead of a confusing exception thrown inside the implementation
+ * of the `value` object).
+ */
+// $FlowFixMe only called in DEV, so void return is not possible.
+function typeName(value) {
+  {
+    // toStringTag is needed for namespaced types like Temporal.Instant
+    var hasToStringTag = typeof Symbol === 'function' && Symbol.toStringTag;
+    var type = hasToStringTag && value[Symbol.toStringTag] || value.constructor.name || 'Object';
+    return type;
+  }
+} // $FlowFixMe only called in DEV, so void return is not possible.
+
+
+function willCoercionThrow(value) {
+  {
+    try {
+      testStringCoercion(value);
+      return false;
+    } catch (e) {
+      return true;
+    }
+  }
+}
+
+function testStringCoercion(value) {
+  // If you ended up here by following an exception call stack, here's what's
+  // happened: you supplied an object or symbol value to React (as a prop, key,
+  // DOM attribute, CSS property, string ref, etc.) and when React tried to
+  // coerce it to a string using `'' + value`, an exception was thrown.
+  //
+  // The most common types that will cause this exception are `Symbol` instances
+  // and Temporal objects like `Temporal.Instant`. But any object that has a
+  // `valueOf` or `[Symbol.toPrimitive]` method that throws will also cause this
+  // exception. (Library authors do this to prevent users from using built-in
+  // numeric operators like `+` or comparison operators like `>=` because custom
+  // methods are needed to perform accurate arithmetic or comparison.)
+  //
+  // To fix the problem, coerce this object or symbol value to a string before
+  // passing it to React. The most reliable way is usually `String(value)`.
+  //
+  // To find which value is throwing, check the browser or debugger console.
+  // Before this exception was thrown, there should be `console.error` output
+  // that shows the type (Symbol, Temporal.PlainDate, etc.) that caused the
+  // problem and how that type was used: key, atrribute, input value prop, etc.
+  // In most cases, this console output also shows the component and its
+  // ancestor components where the exception happened.
+  //
+  // eslint-disable-next-line react-internal/safe-string-coercion
+  return '' + value;
+}
+function checkKeyStringCoercion(value) {
+  {
+    if (willCoercionThrow(value)) {
+      error('The provided key is an unsupported type %s.' + ' This value must be coerced to a string before before using it here.', typeName(value));
+
+      return testStringCoercion(value); // throw (to help callers find troubleshooting comments)
+    }
+  }
+}
+
+function getWrappedName(outerType, innerType, wrapperName) {
+  var displayName = outerType.displayName;
+
+  if (displayName) {
+    return displayName;
+  }
+
+  var functionName = innerType.displayName || innerType.name || '';
+  return functionName !== '' ? wrapperName + "(" + functionName + ")" : wrapperName;
+} // Keep in sync with react-reconciler/getComponentNameFromFiber
+
 
 function getContextName(type) {
   return type.displayName || 'Context';
-}
+} // Note that the reconciler package should generally prefer to use getComponentNameFromFiber() instead.
 
-function getComponentName(type) {
+
+function getComponentNameFromType(type) {
   if (type == null) {
     // Host root, text node or just invalid type.
     return null;
@@ -2814,7 +2816,7 @@ function getComponentName(type) {
 
   {
     if (typeof type.tag === 'number') {
-      error('Received an unexpected object in getComponentName(). ' + 'This is likely a bug in React. Please file an issue.');
+      error('Received an unexpected object in getComponentNameFromType(). ' + 'This is likely a bug in React. Please file an issue.');
     }
   }
 
@@ -2827,23 +2829,24 @@ function getComponentName(type) {
   }
 
   switch (type) {
-    case exports.Fragment:
+    case REACT_FRAGMENT_TYPE:
       return 'Fragment';
 
     case REACT_PORTAL_TYPE:
       return 'Portal';
 
-    case exports.Profiler:
+    case REACT_PROFILER_TYPE:
       return 'Profiler';
 
-    case exports.StrictMode:
+    case REACT_STRICT_MODE_TYPE:
       return 'StrictMode';
 
-    case exports.Suspense:
+    case REACT_SUSPENSE_TYPE:
       return 'Suspense';
 
     case REACT_SUSPENSE_LIST_TYPE:
       return 'SuspenseList';
+
   }
 
   if (typeof type === 'object') {
@@ -2860,10 +2863,13 @@ function getComponentName(type) {
         return getWrappedName(type, type.render, 'ForwardRef');
 
       case REACT_MEMO_TYPE:
-        return getComponentName(type.type);
+        var outerName = type.displayName || null;
 
-      case REACT_BLOCK_TYPE:
-        return getComponentName(type._render);
+        if (outerName !== null) {
+          return outerName;
+        }
+
+        return getComponentNameFromType(type.type) || 'Memo';
 
       case REACT_LAZY_TYPE:
         {
@@ -2872,11 +2878,13 @@ function getComponentName(type) {
           var init = lazyComponent._init;
 
           try {
-            return getComponentName(init(payload));
+            return getComponentNameFromType(init(payload));
           } catch (x) {
             return null;
           }
         }
+
+      // eslint-disable-next-line no-fallthrough
     }
   }
 
@@ -2884,6 +2892,7 @@ function getComponentName(type) {
 }
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
+
 var RESERVED_PROPS = {
   key: true,
   ref: true,
@@ -2963,7 +2972,7 @@ function defineRefPropWarningGetter(props, displayName) {
 function warnIfStringRefCannotBeAutoConverted(config) {
   {
     if (typeof config.ref === 'string' && ReactCurrentOwner.current && config.__self && ReactCurrentOwner.current.stateNode !== config.__self) {
-      var componentName = getComponentName(ReactCurrentOwner.current.type);
+      var componentName = getComponentNameFromType(ReactCurrentOwner.current.type);
 
       if (!didWarnAboutStringRefs[componentName]) {
         error('Component "%s" contains the string ref "%s". ' + 'Support for string refs will be removed in a future major release. ' + 'This case cannot be automatically converted to an arrow function. ' + 'We ask you to manually fix this case by using useRef() or createRef() instead. ' + 'Learn more about using refs safely here: ' + 'https://reactjs.org/link/strict-mode-string-ref', componentName, config.ref);
@@ -3072,6 +3081,10 @@ function createElement(type, config, children) {
     }
 
     if (hasValidKey(config)) {
+      {
+        checkKeyStringCoercion(config.key);
+      }
+
       key = '' + config.key;
     }
 
@@ -3144,16 +3157,13 @@ function cloneAndReplaceKey(oldElement, newKey) {
  */
 
 function cloneElement(element, config, children) {
-  if (!!(element === null || element === undefined)) {
-    {
-      throw Error( "React.cloneElement(...): The argument must be a React element, but you passed " + element + "." );
-    }
+  if (element === null || element === undefined) {
+    throw new Error("React.cloneElement(...): The argument must be a React element, but you passed " + element + ".");
   }
 
   var propName; // Original props are copied
 
-  var props = _assign({}, element.props); // Reserved names are extracted
-
+  var props = assign({}, element.props); // Reserved names are extracted
 
   var key = element.key;
   var ref = element.ref; // Self is preserved since the owner is preserved.
@@ -3174,6 +3184,10 @@ function cloneElement(element, config, children) {
     }
 
     if (hasValidKey(config)) {
+      {
+        checkKeyStringCoercion(config.key);
+      }
+
       key = '' + config.key;
     } // Remaining properties override existing props
 
@@ -3272,6 +3286,10 @@ function getElementKey(element, index) {
   // that we don't block potential future ES APIs.
   if (typeof element === 'object' && element !== null && element.key != null) {
     // Explicit key
+    {
+      checkKeyStringCoercion(element.key);
+    }
+
     return escape('' + element.key);
   } // Implicit key determined by the index in the set
 
@@ -3315,7 +3333,7 @@ function mapIntoArray(children, array, escapedPrefix, nameSoFar, callback) {
 
     var childKey = nameSoFar === '' ? SEPARATOR + getElementKey(_child, 0) : nameSoFar;
 
-    if (Array.isArray(mappedChild)) {
+    if (isArray(mappedChild)) {
       var escapedChildKey = '';
 
       if (childKey != null) {
@@ -3327,10 +3345,20 @@ function mapIntoArray(children, array, escapedPrefix, nameSoFar, callback) {
       });
     } else if (mappedChild != null) {
       if (isValidElement(mappedChild)) {
+        {
+          // The `if` statement here prevents auto-disabling of the safe
+          // coercion ESLint rule, so we must manually disable it below.
+          // $FlowFixMe Flow incorrectly thinks React.Portal doesn't have a key
+          if (mappedChild.key && (!_child || _child.key !== mappedChild.key)) {
+            checkKeyStringCoercion(mappedChild.key);
+          }
+        }
+
         mappedChild = cloneAndReplaceKey(mappedChild, // Keep both the (mapped) and old keys if they differ, just as
         // traverseAllChildren used to do for objects as children
         escapedPrefix + ( // $FlowFixMe Flow incorrectly thinks React.Portal doesn't have a key
         mappedChild.key && (!_child || _child.key !== mappedChild.key) ? // $FlowFixMe Flow incorrectly thinks existing element's key can be a number
+        // eslint-disable-next-line react-internal/safe-string-coercion
         escapeUserProvidedKey('' + mappedChild.key) + '/' : '') + childKey);
       }
 
@@ -3346,7 +3374,7 @@ function mapIntoArray(children, array, escapedPrefix, nameSoFar, callback) {
 
   var nextNamePrefix = nameSoFar === '' ? SEPARATOR : nameSoFar + SUBSEPARATOR;
 
-  if (Array.isArray(children)) {
+  if (isArray(children)) {
     for (var i = 0; i < children.length; i++) {
       child = children[i];
       nextName = nextNamePrefix + getElementKey(child, i);
@@ -3379,13 +3407,9 @@ function mapIntoArray(children, array, escapedPrefix, nameSoFar, callback) {
         subtreeCount += mapIntoArray(child, array, escapedPrefix, nextName, callback);
       }
     } else if (type === 'object') {
-      var childrenString = '' + children;
-
-      {
-        {
-          throw Error( "Objects are not valid as a React child (found: " + (childrenString === '[object Object]' ? 'object with keys {' + Object.keys(children).join(', ') + '}' : childrenString) + "). If you meant to render a collection of children, use an array instead." );
-        }
-      }
+      // eslint-disable-next-line react-internal/safe-string-coercion
+      var childrenString = String(children);
+      throw new Error("Objects are not valid as a React child (found: " + (childrenString === '[object Object]' ? 'object with keys {' + Object.keys(children).join(', ') + '}' : childrenString) + "). " + 'If you meant to render a collection of children, use an array ' + 'instead.');
     }
   }
 
@@ -3484,28 +3508,17 @@ function toArray(children) {
 
 function onlyChild(children) {
   if (!isValidElement(children)) {
-    {
-      throw Error( "React.Children.only expected to receive a single React element child." );
-    }
+    throw new Error('React.Children.only expected to receive a single React element child.');
   }
 
   return children;
 }
 
-function createContext(defaultValue, calculateChangedBits) {
-  if (calculateChangedBits === undefined) {
-    calculateChangedBits = null;
-  } else {
-    {
-      if (calculateChangedBits !== null && typeof calculateChangedBits !== 'function') {
-        error('createContext: Expected the optional second argument to be a ' + 'function. Instead received: %s', calculateChangedBits);
-      }
-    }
-  }
-
+function createContext(defaultValue) {
+  // TODO: Second argument used to be an optional `calculateChangedBits`
+  // function. Warn to reserve for future use?
   var context = {
     $$typeof: REACT_CONTEXT_TYPE,
-    _calculateChangedBits: calculateChangedBits,
     // As a workaround to support multiple concurrent renderers, we categorize
     // some renderers as primary and others as secondary. We only expect
     // there to be two concurrent renderers at most: React Native (primary) and
@@ -3518,7 +3531,10 @@ function createContext(defaultValue, calculateChangedBits) {
     _threadCount: 0,
     // These are circular
     Provider: null,
-    Consumer: null
+    Consumer: null,
+    // Add these to use same hidden class in VM as ServerContext
+    _defaultValue: null,
+    _globalName: null
   };
   context.Provider = {
     $$typeof: REACT_PROVIDER_TYPE,
@@ -3534,8 +3550,7 @@ function createContext(defaultValue, calculateChangedBits) {
     // warn for the incorrect usage of Context as a Consumer.
     var Consumer = {
       $$typeof: REACT_CONTEXT_TYPE,
-      _context: context,
-      _calculateChangedBits: context._calculateChangedBits
+      _context: context
     }; // $FlowFixMe: Flow complains about not setting a value, which is intentional here
 
     Object.defineProperties(Consumer, {
@@ -3622,38 +3637,54 @@ function lazyInitializer(payload) {
   if (payload._status === Uninitialized) {
     var ctor = payload._result;
     var thenable = ctor(); // Transition to the next state.
+    // This might throw either because it's missing or throws. If so, we treat it
+    // as still uninitialized and try again next time. Which is the same as what
+    // happens if the ctor or any wrappers processing the ctor throws. This might
+    // end up fixing it if the resolution was a concurrency bug.
 
-    var pending = payload;
-    pending._status = Pending;
-    pending._result = thenable;
     thenable.then(function (moduleObject) {
-      if (payload._status === Pending) {
-        var defaultExport = moduleObject.default;
-
-        {
-          if (defaultExport === undefined) {
-            error('lazy: Expected the result of a dynamic import() call. ' + 'Instead received: %s\n\nYour code should look like: \n  ' + // Break up imports to avoid accidentally parsing them as dependencies.
-            'const MyComponent = lazy(() => imp' + "ort('./MyComponent'))", moduleObject);
-          }
-        } // Transition to the next state.
-
-
+      if (payload._status === Pending || payload._status === Uninitialized) {
+        // Transition to the next state.
         var resolved = payload;
         resolved._status = Resolved;
-        resolved._result = defaultExport;
+        resolved._result = moduleObject;
       }
     }, function (error) {
-      if (payload._status === Pending) {
+      if (payload._status === Pending || payload._status === Uninitialized) {
         // Transition to the next state.
         var rejected = payload;
         rejected._status = Rejected;
         rejected._result = error;
       }
     });
+
+    if (payload._status === Uninitialized) {
+      // In case, we're still uninitialized, then we're waiting for the thenable
+      // to resolve. Set it as pending in the meantime.
+      var pending = payload;
+      pending._status = Pending;
+      pending._result = thenable;
+    }
   }
 
   if (payload._status === Resolved) {
-    return payload._result;
+    var moduleObject = payload._result;
+
+    {
+      if (moduleObject === undefined) {
+        error('lazy: Expected the result of a dynamic imp' + 'ort() call. ' + 'Instead received: %s\n\nYour code should look like: \n  ' + // Break up imports to avoid accidentally parsing them as dependencies.
+        'const MyComponent = lazy(() => imp' + "ort('./MyComponent'))\n\n" + 'Did you accidentally put curly braces around the import?', moduleObject);
+      }
+    }
+
+    {
+      if (!('default' in moduleObject)) {
+        error('lazy: Expected the result of a dynamic imp' + 'ort() call. ' + 'Instead received: %s\n\nYour code should look like: \n  ' + // Break up imports to avoid accidentally parsing them as dependencies.
+        'const MyComponent = lazy(() => imp' + "ort('./MyComponent'))", moduleObject);
+      }
+    }
+
+    return moduleObject.default;
   } else {
     throw payload._result;
   }
@@ -3662,7 +3693,7 @@ function lazyInitializer(payload) {
 function lazy(ctor) {
   var payload = {
     // We use these fields to store the result.
-    _status: -1,
+    _status: Uninitialized,
     _result: ctor
   };
   var lazyType = {
@@ -3748,9 +3779,15 @@ function forwardRef(render) {
         return ownName;
       },
       set: function (name) {
-        ownName = name;
+        ownName = name; // The inner component shouldn't inherit this display name in most cases,
+        // because the component may be used elsewhere.
+        // But it's nice for anonymous functions to inherit the name,
+        // so that our component-stack generation logic will display their frames.
+        // An anonymous function generally suggests a pattern like:
+        //   React.forwardRef((props, ref) => {...});
+        // This kind of inner function is not used elsewhere so the side effect is okay.
 
-        if (render.displayName == null) {
+        if (!render.name && !render.displayName) {
           render.displayName = name;
         }
       }
@@ -3760,9 +3797,11 @@ function forwardRef(render) {
   return elementType;
 }
 
-// Filter certain DOM attributes (e.g. src, href) if their values are empty strings.
+var REACT_MODULE_REFERENCE;
 
-var enableScopeAPI = false; // Experimental Create Event Handle API.
+{
+  REACT_MODULE_REFERENCE = Symbol.for('react.module.reference');
+}
 
 function isValidElementType(type) {
   if (typeof type === 'string' || typeof type === 'function') {
@@ -3770,12 +3809,16 @@ function isValidElementType(type) {
   } // Note: typeof might be other than 'symbol' or 'number' (e.g. if it's a polyfill).
 
 
-  if (type === exports.Fragment || type === exports.Profiler || type === REACT_DEBUG_TRACING_MODE_TYPE || type === exports.StrictMode || type === exports.Suspense || type === REACT_SUSPENSE_LIST_TYPE || type === REACT_LEGACY_HIDDEN_TYPE || enableScopeAPI ) {
+  if (type === REACT_FRAGMENT_TYPE || type === REACT_PROFILER_TYPE || enableDebugTracing  || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || type === REACT_SUSPENSE_LIST_TYPE || enableLegacyHidden  || type === REACT_OFFSCREEN_TYPE || enableScopeAPI  || enableCacheElement  || enableTransitionTracing ) {
     return true;
   }
 
   if (typeof type === 'object' && type !== null) {
-    if (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE || type.$$typeof === REACT_FUNDAMENTAL_TYPE || type.$$typeof === REACT_BLOCK_TYPE || type[0] === REACT_SERVER_BLOCK_TYPE) {
+    if (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE || // This needs to include all possible module reference object
+    // types supported by any Flight configuration anywhere since
+    // we don't know which Flight build this will end up being used
+    // with.
+    type.$$typeof === REACT_MODULE_REFERENCE || type.getModuleId !== undefined) {
       return true;
     }
   }
@@ -3805,9 +3848,15 @@ function memo(type, compare) {
         return ownName;
       },
       set: function (name) {
-        ownName = name;
+        ownName = name; // The inner component shouldn't inherit this display name in most cases,
+        // because the component may be used elsewhere.
+        // But it's nice for anonymous functions to inherit the name,
+        // so that our component-stack generation logic will display their frames.
+        // An anonymous function generally suggests a pattern like:
+        //   React.memo((props) => {...});
+        // This kind of inner function is not used elsewhere so the side effect is okay.
 
-        if (type.displayName == null) {
+        if (!type.name && !type.displayName) {
           type.displayName = name;
         }
       }
@@ -3820,24 +3869,22 @@ function memo(type, compare) {
 function resolveDispatcher() {
   var dispatcher = ReactCurrentDispatcher.current;
 
-  if (!(dispatcher !== null)) {
-    {
-      throw Error( "Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:\n1. You might have mismatching versions of React and the renderer (such as React DOM)\n2. You might be breaking the Rules of Hooks\n3. You might have more than one copy of React in the same app\nSee https://reactjs.org/link/invalid-hook-call for tips about how to debug and fix this problem." );
+  {
+    if (dispatcher === null) {
+      error('Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for' + ' one of the following reasons:\n' + '1. You might have mismatching versions of React and the renderer (such as React DOM)\n' + '2. You might be breaking the Rules of Hooks\n' + '3. You might have more than one copy of React in the same app\n' + 'See https://reactjs.org/link/invalid-hook-call for tips about how to debug and fix this problem.');
     }
-  }
+  } // Will result in a null access error if accessed outside render phase. We
+  // intentionally don't throw our own error because this is in a hot path.
+  // Also helps ensure this is inlined.
+
 
   return dispatcher;
 }
-
-function useContext(Context, unstable_observedBits) {
+function useContext(Context) {
   var dispatcher = resolveDispatcher();
 
   {
-    if (unstable_observedBits !== undefined) {
-      error('useContext() second argument is reserved for future ' + 'use in React. Passing it is not supported. ' + 'You passed: %s.%s', unstable_observedBits, typeof unstable_observedBits === 'number' && Array.isArray(arguments[2]) ? '\n\nDid you call array.map(useContext)? ' + 'Calling Hooks inside a loop is not supported. ' + 'Learn more at https://reactjs.org/link/rules-of-hooks' : '');
-    } // TODO: add a more generic warning for invalid values.
-
-
+    // TODO: add a more generic warning for invalid values.
     if (Context._context !== undefined) {
       var realContext = Context._context; // Don't deduplicate because this legitimately causes bugs
       // and nobody should be using this in existing code.
@@ -3850,7 +3897,7 @@ function useContext(Context, unstable_observedBits) {
     }
   }
 
-  return dispatcher.useContext(Context, unstable_observedBits);
+  return dispatcher.useContext(Context);
 }
 function useState(initialState) {
   var dispatcher = resolveDispatcher();
@@ -3867,6 +3914,10 @@ function useRef(initialValue) {
 function useEffect(create, deps) {
   var dispatcher = resolveDispatcher();
   return dispatcher.useEffect(create, deps);
+}
+function useInsertionEffect(create, deps) {
+  var dispatcher = resolveDispatcher();
+  return dispatcher.useInsertionEffect(create, deps);
 }
 function useLayoutEffect(create, deps) {
   var dispatcher = resolveDispatcher();
@@ -3889,6 +3940,22 @@ function useDebugValue(value, formatterFn) {
     var dispatcher = resolveDispatcher();
     return dispatcher.useDebugValue(value, formatterFn);
   }
+}
+function useTransition() {
+  var dispatcher = resolveDispatcher();
+  return dispatcher.useTransition();
+}
+function useDeferredValue(value) {
+  var dispatcher = resolveDispatcher();
+  return dispatcher.useDeferredValue(value);
+}
+function useId() {
+  var dispatcher = resolveDispatcher();
+  return dispatcher.useId();
+}
+function useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot) {
+  var dispatcher = resolveDispatcher();
+  return dispatcher.useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
 
 // Helpers to patch console.logs to avoid logging during side-effect free
@@ -3954,25 +4021,25 @@ function reenableLogs() {
       }; // $FlowFixMe Flow thinks console is immutable.
 
       Object.defineProperties(console, {
-        log: _assign({}, props, {
+        log: assign({}, props, {
           value: prevLog
         }),
-        info: _assign({}, props, {
+        info: assign({}, props, {
           value: prevInfo
         }),
-        warn: _assign({}, props, {
+        warn: assign({}, props, {
           value: prevWarn
         }),
-        error: _assign({}, props, {
+        error: assign({}, props, {
           value: prevError
         }),
-        group: _assign({}, props, {
+        group: assign({}, props, {
           value: prevGroup
         }),
-        groupCollapsed: _assign({}, props, {
+        groupCollapsed: assign({}, props, {
           value: prevGroupCollapsed
         }),
-        groupEnd: _assign({}, props, {
+        groupEnd: assign({}, props, {
           value: prevGroupEnd
         })
       });
@@ -4013,7 +4080,7 @@ var componentFrameCache;
 
 function describeNativeComponentFrame(fn, construct) {
   // If something asked for a stack inside a fake render, it should get ignored.
-  if (!fn || reentry) {
+  if ( !fn || reentry) {
     return '';
   }
 
@@ -4122,7 +4189,14 @@ function describeNativeComponentFrame(fn, construct) {
 
               if (c < 0 || sampleLines[s] !== controlLines[c]) {
                 // V8 adds a "new" prefix for native classes. Let's remove it to make it prettier.
-                var _frame = '\n' + sampleLines[s].replace(' at new ', ' at ');
+                var _frame = '\n' + sampleLines[s].replace(' at new ', ' at '); // If our component frame is labeled "<anonymous>"
+                // but we have a user-provided "displayName"
+                // splice it in to make the stack more readable.
+
+
+                if (fn.displayName && _frame.includes('<anonymous>')) {
+                  _frame = _frame.replace('<anonymous>', fn.displayName);
+                }
 
                 {
                   if (typeof fn === 'function') {
@@ -4191,7 +4265,7 @@ function describeUnknownElementTypeFrameInDEV(type, source, ownerFn) {
   }
 
   switch (type) {
-    case exports.Suspense:
+    case REACT_SUSPENSE_TYPE:
       return describeBuiltInComponentFrame('Suspense');
 
     case REACT_SUSPENSE_LIST_TYPE:
@@ -4206,9 +4280,6 @@ function describeUnknownElementTypeFrameInDEV(type, source, ownerFn) {
       case REACT_MEMO_TYPE:
         // Memo may contain any component type so we recursively resolve it.
         return describeUnknownElementTypeFrameInDEV(type.type, source, ownerFn);
-
-      case REACT_BLOCK_TYPE:
-        return describeFunctionComponentFrame(type._render);
 
       case REACT_LAZY_TYPE:
         {
@@ -4245,7 +4316,7 @@ function setCurrentlyValidatingElement(element) {
 function checkPropTypes(typeSpecs, values, location, componentName, element) {
   {
     // $FlowFixMe This is okay but Flow doesn't know it.
-    var has = Function.call.bind(Object.prototype.hasOwnProperty);
+    var has = Function.call.bind(hasOwnProperty);
 
     for (var typeSpecName in typeSpecs) {
       if (has(typeSpecs, typeSpecName)) {
@@ -4257,6 +4328,7 @@ function checkPropTypes(typeSpecs, values, location, componentName, element) {
           // This is intentionally an invariant that gets caught. It's the same
           // behavior as without this statement except with a better message.
           if (typeof typeSpecs[typeSpecName] !== 'function') {
+            // eslint-disable-next-line react-internal/prod-error-codes
             var err = Error((componentName || 'React class') + ': ' + location + ' type `' + typeSpecName + '` is invalid; ' + 'it must be a function, usually from the `prop-types` package, but received `' + typeof typeSpecs[typeSpecName] + '`.' + 'This often happens because of typos such as `PropTypes.function` instead of `PropTypes.func`.');
             err.name = 'Invariant Violation';
             throw err;
@@ -4310,7 +4382,7 @@ var propTypesMisspellWarningShown;
 
 function getDeclarationErrorAddendum() {
   if (ReactCurrentOwner.current) {
-    var name = getComponentName(ReactCurrentOwner.current.type);
+    var name = getComponentNameFromType(ReactCurrentOwner.current.type);
 
     if (name) {
       return '\n\nCheck the render method of `' + name + '`.';
@@ -4392,7 +4464,7 @@ function validateExplicitKey(element, parentType) {
 
   if (element && element._owner && element._owner !== ReactCurrentOwner.current) {
     // Give the component that originally created this child.
-    childOwner = " It was passed a child from " + getComponentName(element._owner.type) + ".";
+    childOwner = " It was passed a child from " + getComponentNameFromType(element._owner.type) + ".";
   }
 
   {
@@ -4419,7 +4491,7 @@ function validateChildKeys(node, parentType) {
     return;
   }
 
-  if (Array.isArray(node)) {
+  if (isArray(node)) {
     for (var i = 0; i < node.length; i++) {
       var child = node[i];
 
@@ -4481,12 +4553,12 @@ function validatePropTypes(element) {
 
     if (propTypes) {
       // Intentionally inside to avoid triggering lazy initializers:
-      var name = getComponentName(type);
+      var name = getComponentNameFromType(type);
       checkPropTypes(propTypes, element.props, 'prop', name, element);
     } else if (type.PropTypes !== undefined && !propTypesMisspellWarningShown) {
       propTypesMisspellWarningShown = true; // Intentionally inside to avoid triggering lazy initializers:
 
-      var _name = getComponentName(type);
+      var _name = getComponentNameFromType(type);
 
       error('Component %s declared `PropTypes` instead of `propTypes`. Did you misspell the property assignment?', _name || 'Unknown');
     }
@@ -4551,10 +4623,10 @@ function createElementWithValidation(type, props, children) {
 
     if (type === null) {
       typeString = 'null';
-    } else if (Array.isArray(type)) {
+    } else if (isArray(type)) {
       typeString = 'array';
     } else if (type !== undefined && type.$$typeof === REACT_ELEMENT_TYPE) {
-      typeString = "<" + (getComponentName(type.type) || 'Unknown') + " />";
+      typeString = "<" + (getComponentNameFromType(type.type) || 'Unknown') + " />";
       info = ' Did you accidentally export a JSX literal instead of a component?';
     } else {
       typeString = typeof type;
@@ -4583,7 +4655,7 @@ function createElementWithValidation(type, props, children) {
     }
   }
 
-  if (type === exports.Fragment) {
+  if (type === REACT_FRAGMENT_TYPE) {
     validateFragmentProps(element);
   } else {
     validatePropTypes(element);
@@ -4630,16 +4702,263 @@ function cloneElementWithValidation(element, props, children) {
   return newElement;
 }
 
-{
+function startTransition(scope, options) {
+  var prevTransition = ReactCurrentBatchConfig.transition;
+  ReactCurrentBatchConfig.transition = {};
+  var currentTransition = ReactCurrentBatchConfig.transition;
+
+  {
+    ReactCurrentBatchConfig.transition._updatedFibers = new Set();
+  }
 
   try {
-    var frozenObject = Object.freeze({});
-    /* eslint-disable no-new */
+    scope();
+  } finally {
+    ReactCurrentBatchConfig.transition = prevTransition;
 
-    new Map([[frozenObject, null]]);
-    new Set([frozenObject]);
-    /* eslint-enable no-new */
-  } catch (e) {
+    {
+      if (prevTransition === null && currentTransition._updatedFibers) {
+        var updatedFibersCount = currentTransition._updatedFibers.size;
+
+        if (updatedFibersCount > 10) {
+          warn('Detected a large number of updates inside startTransition. ' + 'If this is due to a subscription please re-write it to use React provided hooks. ' + 'Otherwise concurrent mode guarantees are off the table.');
+        }
+
+        currentTransition._updatedFibers.clear();
+      }
+    }
+  }
+}
+
+var didWarnAboutMessageChannel = false;
+var enqueueTaskImpl = null;
+function enqueueTask(task) {
+  if (enqueueTaskImpl === null) {
+    try {
+      // read require off the module object to get around the bundlers.
+      // we don't want them to detect a require and bundle a Node polyfill.
+      var requireString = ('require' + Math.random()).slice(0, 7);
+      var nodeRequire = module && module[requireString]; // assuming we're in node, let's try to get node's
+      // version of setImmediate, bypassing fake timers if any.
+
+      enqueueTaskImpl = nodeRequire.call(module, 'timers').setImmediate;
+    } catch (_err) {
+      // we're in a browser
+      // we can't use regular timers because they may still be faked
+      // so we try MessageChannel+postMessage instead
+      enqueueTaskImpl = function (callback) {
+        {
+          if (didWarnAboutMessageChannel === false) {
+            didWarnAboutMessageChannel = true;
+
+            if (typeof MessageChannel === 'undefined') {
+              error('This browser does not have a MessageChannel implementation, ' + 'so enqueuing tasks via await act(async () => ...) will fail. ' + 'Please file an issue at https://github.com/facebook/react/issues ' + 'if you encounter this warning.');
+            }
+          }
+        }
+
+        var channel = new MessageChannel();
+        channel.port1.onmessage = callback;
+        channel.port2.postMessage(undefined);
+      };
+    }
+  }
+
+  return enqueueTaskImpl(task);
+}
+
+var actScopeDepth = 0;
+var didWarnNoAwaitAct = false;
+function act(callback) {
+  {
+    // `act` calls can be nested, so we track the depth. This represents the
+    // number of `act` scopes on the stack.
+    var prevActScopeDepth = actScopeDepth;
+    actScopeDepth++;
+
+    if (ReactCurrentActQueue.current === null) {
+      // This is the outermost `act` scope. Initialize the queue. The reconciler
+      // will detect the queue and use it instead of Scheduler.
+      ReactCurrentActQueue.current = [];
+    }
+
+    var prevIsBatchingLegacy = ReactCurrentActQueue.isBatchingLegacy;
+    var result;
+
+    try {
+      // Used to reproduce behavior of `batchedUpdates` in legacy mode. Only
+      // set to `true` while the given callback is executed, not for updates
+      // triggered during an async event, because this is how the legacy
+      // implementation of `act` behaved.
+      ReactCurrentActQueue.isBatchingLegacy = true;
+      result = callback(); // Replicate behavior of original `act` implementation in legacy mode,
+      // which flushed updates immediately after the scope function exits, even
+      // if it's an async function.
+
+      if (!prevIsBatchingLegacy && ReactCurrentActQueue.didScheduleLegacyUpdate) {
+        var queue = ReactCurrentActQueue.current;
+
+        if (queue !== null) {
+          ReactCurrentActQueue.didScheduleLegacyUpdate = false;
+          flushActQueue(queue);
+        }
+      }
+    } catch (error) {
+      popActScope(prevActScopeDepth);
+      throw error;
+    } finally {
+      ReactCurrentActQueue.isBatchingLegacy = prevIsBatchingLegacy;
+    }
+
+    if (result !== null && typeof result === 'object' && typeof result.then === 'function') {
+      var thenableResult = result; // The callback is an async function (i.e. returned a promise). Wait
+      // for it to resolve before exiting the current scope.
+
+      var wasAwaited = false;
+      var thenable = {
+        then: function (resolve, reject) {
+          wasAwaited = true;
+          thenableResult.then(function (returnValue) {
+            popActScope(prevActScopeDepth);
+
+            if (actScopeDepth === 0) {
+              // We've exited the outermost act scope. Recursively flush the
+              // queue until there's no remaining work.
+              recursivelyFlushAsyncActWork(returnValue, resolve, reject);
+            } else {
+              resolve(returnValue);
+            }
+          }, function (error) {
+            // The callback threw an error.
+            popActScope(prevActScopeDepth);
+            reject(error);
+          });
+        }
+      };
+
+      {
+        if (!didWarnNoAwaitAct && typeof Promise !== 'undefined') {
+          // eslint-disable-next-line no-undef
+          Promise.resolve().then(function () {}).then(function () {
+            if (!wasAwaited) {
+              didWarnNoAwaitAct = true;
+
+              error('You called act(async () => ...) without await. ' + 'This could lead to unexpected testing behaviour, ' + 'interleaving multiple act calls and mixing their ' + 'scopes. ' + 'You should - await act(async () => ...);');
+            }
+          });
+        }
+      }
+
+      return thenable;
+    } else {
+      var returnValue = result; // The callback is not an async function. Exit the current scope
+      // immediately, without awaiting.
+
+      popActScope(prevActScopeDepth);
+
+      if (actScopeDepth === 0) {
+        // Exiting the outermost act scope. Flush the queue.
+        var _queue = ReactCurrentActQueue.current;
+
+        if (_queue !== null) {
+          flushActQueue(_queue);
+          ReactCurrentActQueue.current = null;
+        } // Return a thenable. If the user awaits it, we'll flush again in
+        // case additional work was scheduled by a microtask.
+
+
+        var _thenable = {
+          then: function (resolve, reject) {
+            // Confirm we haven't re-entered another `act` scope, in case
+            // the user does something weird like await the thenable
+            // multiple times.
+            if (ReactCurrentActQueue.current === null) {
+              // Recursively flush the queue until there's no remaining work.
+              ReactCurrentActQueue.current = [];
+              recursivelyFlushAsyncActWork(returnValue, resolve, reject);
+            } else {
+              resolve(returnValue);
+            }
+          }
+        };
+        return _thenable;
+      } else {
+        // Since we're inside a nested `act` scope, the returned thenable
+        // immediately resolves. The outer scope will flush the queue.
+        var _thenable2 = {
+          then: function (resolve, reject) {
+            resolve(returnValue);
+          }
+        };
+        return _thenable2;
+      }
+    }
+  }
+}
+
+function popActScope(prevActScopeDepth) {
+  {
+    if (prevActScopeDepth !== actScopeDepth - 1) {
+      error('You seem to have overlapping act() calls, this is not supported. ' + 'Be sure to await previous act() calls before making a new one. ');
+    }
+
+    actScopeDepth = prevActScopeDepth;
+  }
+}
+
+function recursivelyFlushAsyncActWork(returnValue, resolve, reject) {
+  {
+    var queue = ReactCurrentActQueue.current;
+
+    if (queue !== null) {
+      try {
+        flushActQueue(queue);
+        enqueueTask(function () {
+          if (queue.length === 0) {
+            // No additional work was scheduled. Finish.
+            ReactCurrentActQueue.current = null;
+            resolve(returnValue);
+          } else {
+            // Keep flushing work until there's none left.
+            recursivelyFlushAsyncActWork(returnValue, resolve, reject);
+          }
+        });
+      } catch (error) {
+        reject(error);
+      }
+    } else {
+      resolve(returnValue);
+    }
+  }
+}
+
+var isFlushing = false;
+
+function flushActQueue(queue) {
+  {
+    if (!isFlushing) {
+      // Prevent re-entrance.
+      isFlushing = true;
+      var i = 0;
+
+      try {
+        for (; i < queue.length; i++) {
+          var callback = queue[i];
+
+          do {
+            callback = callback(true);
+          } while (callback !== null);
+        }
+
+        queue.length = 0;
+      } catch (error) {
+        // If something throws, leave the remaining callbacks on the queue.
+        queue = queue.slice(i + 1);
+        throw error;
+      } finally {
+        isFlushing = false;
+      }
+    }
   }
 }
 
@@ -4656,7 +4975,11 @@ var Children = {
 
 exports.Children = Children;
 exports.Component = Component;
+exports.Fragment = REACT_FRAGMENT_TYPE;
+exports.Profiler = REACT_PROFILER_TYPE;
 exports.PureComponent = PureComponent;
+exports.StrictMode = REACT_STRICT_MODE_TYPE;
+exports.Suspense = REACT_SUSPENSE_TYPE;
 exports.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = ReactSharedInternals;
 exports.cloneElement = cloneElement$1;
 exports.createContext = createContext;
@@ -4667,17 +4990,33 @@ exports.forwardRef = forwardRef;
 exports.isValidElement = isValidElement;
 exports.lazy = lazy;
 exports.memo = memo;
+exports.startTransition = startTransition;
+exports.unstable_act = act;
 exports.useCallback = useCallback;
 exports.useContext = useContext;
 exports.useDebugValue = useDebugValue;
+exports.useDeferredValue = useDeferredValue;
 exports.useEffect = useEffect;
+exports.useId = useId;
 exports.useImperativeHandle = useImperativeHandle;
+exports.useInsertionEffect = useInsertionEffect;
 exports.useLayoutEffect = useLayoutEffect;
 exports.useMemo = useMemo;
 exports.useReducer = useReducer;
 exports.useRef = useRef;
 exports.useState = useState;
+exports.useSyncExternalStore = useSyncExternalStore;
+exports.useTransition = useTransition;
 exports.version = ReactVersion;
+          /* global __REACT_DEVTOOLS_GLOBAL_HOOK__ */
+if (
+  typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined' &&
+  typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop ===
+    'function'
+) {
+  __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(new Error());
+}
+        
   })();
 }
 
@@ -4688,7 +5027,7 @@ exports.version = ReactVersion;
 /*!*************************************!*\
   !*** ./node_modules/react/index.js ***!
   \*************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 
@@ -4704,14 +5043,17 @@ if (false) {} else {
 /*!*******************************************************************!*\
   !*** ./node_modules/@babel/runtime/helpers/esm/defineProperty.js ***!
   \*******************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+/***/ (function(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ _defineProperty)
+/* harmony export */   "default": function() { return /* binding */ _defineProperty; }
 /* harmony export */ });
+/* harmony import */ var _toPropertyKey_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./toPropertyKey.js */ "./node_modules/@babel/runtime/helpers/esm/toPropertyKey.js");
+
 function _defineProperty(obj, key, value) {
+  key = (0,_toPropertyKey_js__WEBPACK_IMPORTED_MODULE_0__["default"])(key);
   if (key in obj) {
     Object.defineProperty(obj, key, {
       value: value,
@@ -4722,8 +5064,78 @@ function _defineProperty(obj, key, value) {
   } else {
     obj[key] = value;
   }
-
   return obj;
+}
+
+/***/ }),
+
+/***/ "./node_modules/@babel/runtime/helpers/esm/toPrimitive.js":
+/*!****************************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/esm/toPrimitive.js ***!
+  \****************************************************************/
+/***/ (function(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": function() { return /* binding */ _toPrimitive; }
+/* harmony export */ });
+/* harmony import */ var _typeof_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./typeof.js */ "./node_modules/@babel/runtime/helpers/esm/typeof.js");
+
+function _toPrimitive(input, hint) {
+  if ((0,_typeof_js__WEBPACK_IMPORTED_MODULE_0__["default"])(input) !== "object" || input === null) return input;
+  var prim = input[Symbol.toPrimitive];
+  if (prim !== undefined) {
+    var res = prim.call(input, hint || "default");
+    if ((0,_typeof_js__WEBPACK_IMPORTED_MODULE_0__["default"])(res) !== "object") return res;
+    throw new TypeError("@@toPrimitive must return a primitive value.");
+  }
+  return (hint === "string" ? String : Number)(input);
+}
+
+/***/ }),
+
+/***/ "./node_modules/@babel/runtime/helpers/esm/toPropertyKey.js":
+/*!******************************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/esm/toPropertyKey.js ***!
+  \******************************************************************/
+/***/ (function(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": function() { return /* binding */ _toPropertyKey; }
+/* harmony export */ });
+/* harmony import */ var _typeof_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./typeof.js */ "./node_modules/@babel/runtime/helpers/esm/typeof.js");
+/* harmony import */ var _toPrimitive_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./toPrimitive.js */ "./node_modules/@babel/runtime/helpers/esm/toPrimitive.js");
+
+
+function _toPropertyKey(arg) {
+  var key = (0,_toPrimitive_js__WEBPACK_IMPORTED_MODULE_1__["default"])(arg, "string");
+  return (0,_typeof_js__WEBPACK_IMPORTED_MODULE_0__["default"])(key) === "symbol" ? key : String(key);
+}
+
+/***/ }),
+
+/***/ "./node_modules/@babel/runtime/helpers/esm/typeof.js":
+/*!***********************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/esm/typeof.js ***!
+  \***********************************************************/
+/***/ (function(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": function() { return /* binding */ _typeof; }
+/* harmony export */ });
+function _typeof(obj) {
+  "@babel/helpers - typeof";
+
+  return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) {
+    return typeof obj;
+  } : function (obj) {
+    return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+  }, _typeof(obj);
 }
 
 /***/ })
@@ -4742,13 +5154,16 @@ function _defineProperty(obj, key, value) {
 /******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = __webpack_module_cache__[moduleId] = {
-/******/ 			// no module.id needed
-/******/ 			// no module.loaded needed
+/******/ 			id: moduleId,
+/******/ 			loaded: false,
 /******/ 			exports: {}
 /******/ 		};
 /******/ 	
 /******/ 		// Execute the module function
 /******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
 /******/ 	
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
@@ -4756,49 +5171,58 @@ function _defineProperty(obj, key, value) {
 /******/ 	
 /************************************************************************/
 /******/ 	/* webpack/runtime/compat get default export */
-/******/ 	(() => {
+/******/ 	!function() {
 /******/ 		// getDefaultExport function for compatibility with non-harmony modules
-/******/ 		__webpack_require__.n = (module) => {
+/******/ 		__webpack_require__.n = function(module) {
 /******/ 			var getter = module && module.__esModule ?
-/******/ 				() => (module['default']) :
-/******/ 				() => (module);
+/******/ 				function() { return module['default']; } :
+/******/ 				function() { return module; };
 /******/ 			__webpack_require__.d(getter, { a: getter });
 /******/ 			return getter;
 /******/ 		};
-/******/ 	})();
+/******/ 	}();
 /******/ 	
 /******/ 	/* webpack/runtime/define property getters */
-/******/ 	(() => {
+/******/ 	!function() {
 /******/ 		// define getter functions for harmony exports
-/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 		__webpack_require__.d = function(exports, definition) {
 /******/ 			for(var key in definition) {
 /******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
 /******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
 /******/ 				}
 /******/ 			}
 /******/ 		};
-/******/ 	})();
+/******/ 	}();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
-/******/ 	(() => {
-/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ 	})();
+/******/ 	!function() {
+/******/ 		__webpack_require__.o = function(obj, prop) { return Object.prototype.hasOwnProperty.call(obj, prop); }
+/******/ 	}();
 /******/ 	
 /******/ 	/* webpack/runtime/make namespace object */
-/******/ 	(() => {
+/******/ 	!function() {
 /******/ 		// define __esModule on exports
-/******/ 		__webpack_require__.r = (exports) => {
+/******/ 		__webpack_require__.r = function(exports) {
 /******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
 /******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 /******/ 			}
 /******/ 			Object.defineProperty(exports, '__esModule', { value: true });
 /******/ 		};
-/******/ 	})();
+/******/ 	}();
+/******/ 	
+/******/ 	/* webpack/runtime/node module decorator */
+/******/ 	!function() {
+/******/ 		__webpack_require__.nmd = function(module) {
+/******/ 			module.paths = [];
+/******/ 			if (!module.children) module.children = [];
+/******/ 			return module;
+/******/ 		};
+/******/ 	}();
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be in strict mode.
-(() => {
+!function() {
 "use strict";
 /*!****************************************************************************!*\
   !*** ./src/advanced-custom-fields-pro/assets/src/js/pro/acf-pro-blocks.js ***!
@@ -4809,8 +5233,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _acf_blocks_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./_acf-blocks.js */ "./src/advanced-custom-fields-pro/assets/src/js/pro/_acf-blocks.js");
 
 
-})();
-
+}();
 /******/ })()
 ;
 //# sourceMappingURL=acf-pro-blocks.js.map

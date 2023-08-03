@@ -21,10 +21,13 @@ if ( ! class_exists( 'acf_field_wysiwyg' ) ) :
 		function initialize() {
 
 			// vars
-			$this->name     = 'wysiwyg';
-			$this->label    = __( 'Wysiwyg Editor', 'acf' );
-			$this->category = 'content';
-			$this->defaults = array(
+			$this->name          = 'wysiwyg';
+			$this->label         = __( 'WYSIWYG Editor', 'acf' );
+			$this->category      = 'content';
+			$this->description   = __( 'Displays the WordPress WYSIWYG editor as seen in Posts and Pages allowing for a rich text-editing experience that also allows for multimedia content.', 'acf' ) . ' ' . __( 'We do not recommend using this field in ACF Blocks.', 'acf' );
+			$this->preview_image = acf_get_url() . '/assets/images/field-type-previews/field-preview-wysiwyg.png';
+			$this->doc_url       = acf_add_url_utm_tags( 'https://www.advancedcustomfields.com/resources/wysiwyg-editor/', 'docs', 'field-type-selection' );
+			$this->defaults      = array(
 				'tabs'          => 'all',
 				'toolbar'       => 'full',
 				'media_upload'  => 1,
@@ -265,7 +268,7 @@ if ( ! class_exists( 'acf_field_wysiwyg' ) ) :
 			);
 
 			?>
-		<div <?php acf_esc_attr_e( $wrap ); ?>>
+		<div <?php echo acf_esc_attrs( $wrap ); ?>>
 			<div id="wp-<?php echo esc_attr( $id ); ?>-editor-tools" class="wp-editor-tools hide-if-no-js">
 				<?php if ( $field['media_upload'] ) : ?>
 				<div id="wp-<?php echo esc_attr( $id ); ?>-media-buttons" class="wp-media-buttons">
@@ -308,10 +311,28 @@ if ( ! class_exists( 'acf_field_wysiwyg' ) ) :
 		*
 		*  @param   $field  - an array holding all the field's data
 		*/
-
 		function render_field_settings( $field ) {
+			acf_render_field_setting(
+				$field,
+				array(
+					'label'        => __( 'Default Value', 'acf' ),
+					'instructions' => __( 'Appears when creating a new post', 'acf' ),
+					'type'         => 'textarea',
+					'name'         => 'default_value',
+				)
+			);
 
-			// vars
+		}
+
+		/**
+		 * Renders the field settings used in the "Presentation" tab.
+		 *
+		 * @since 6.0
+		 *
+		 * @param array $field The field settings array.
+		 * @return void
+		 */
+		function render_field_presentation_settings( $field ) {
 			$toolbars = $this->get_toolbars();
 			$choices  = array();
 
@@ -327,18 +348,6 @@ if ( ! class_exists( 'acf_field_wysiwyg' ) ) :
 				}
 			}
 
-			// default_value
-			acf_render_field_setting(
-				$field,
-				array(
-					'label'        => __( 'Default Value', 'acf' ),
-					'instructions' => __( 'Appears when creating a new post', 'acf' ),
-					'type'         => 'textarea',
-					'name'         => 'default_value',
-				)
-			);
-
-			// tabs
 			acf_render_field_setting(
 				$field,
 				array(
@@ -354,7 +363,6 @@ if ( ! class_exists( 'acf_field_wysiwyg' ) ) :
 				)
 			);
 
-			// toolbar
 			acf_render_field_setting(
 				$field,
 				array(
@@ -371,11 +379,10 @@ if ( ! class_exists( 'acf_field_wysiwyg' ) ) :
 				)
 			);
 
-			// media_upload
 			acf_render_field_setting(
 				$field,
 				array(
-					'label'        => __( 'Show Media Upload Buttons?', 'acf' ),
+					'label'        => __( 'Show Media Upload Buttons', 'acf' ),
 					'instructions' => '',
 					'name'         => 'media_upload',
 					'type'         => 'true_false',
@@ -383,11 +390,10 @@ if ( ! class_exists( 'acf_field_wysiwyg' ) ) :
 				)
 			);
 
-			// delay
 			acf_render_field_setting(
 				$field,
 				array(
-					'label'        => __( 'Delay initialization?', 'acf' ),
+					'label'        => __( 'Delay Initialization', 'acf' ),
 					'instructions' => __( 'TinyMCE will not be initialized until field is clicked', 'acf' ),
 					'name'         => 'delay',
 					'type'         => 'true_false',
@@ -399,7 +405,6 @@ if ( ! class_exists( 'acf_field_wysiwyg' ) ) :
 					),
 				)
 			);
-
 		}
 
 		/**

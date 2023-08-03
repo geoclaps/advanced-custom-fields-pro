@@ -21,10 +21,13 @@ if ( ! class_exists( 'acf_field_radio' ) ) :
 		function initialize() {
 
 			// vars
-			$this->name     = 'radio';
-			$this->label    = __( 'Radio Button', 'acf' );
-			$this->category = 'choice';
-			$this->defaults = array(
+			$this->name          = 'radio';
+			$this->label         = __( 'Radio Button', 'acf' );
+			$this->category      = 'choice';
+			$this->description   = __( 'A group of radio button inputs that allows the user to make a single selection from values that you specify.', 'acf' );
+			$this->preview_image = acf_get_url() . '/assets/images/field-type-previews/field-preview-radio-button.png';
+			$this->doc_url       = acf_add_url_utm_tags( 'https://www.advancedcustomfields.com/resources/radio-button/', 'docs', 'field-type-selection' );
+			$this->defaults      = array(
 				'layout'            => 'vertical',
 				'choices'           => array(),
 				'default_value'     => '',
@@ -180,65 +183,19 @@ if ( ! class_exists( 'acf_field_radio' ) ) :
 		*/
 
 		function render_field_settings( $field ) {
-
-			// encode choices (convert from array)
+			// Encode choices (convert from array).
 			$field['choices'] = acf_encode_choices( $field['choices'] );
 
-			// choices
 			acf_render_field_setting(
 				$field,
 				array(
 					'label'        => __( 'Choices', 'acf' ),
-					'instructions' => __( 'Enter each choice on a new line.', 'acf' ) . '<br /><br />' . __( 'For more control, you may specify both a value and label like this:', 'acf' ) . '<br /><br />' . __( 'red : Red', 'acf' ),
+					'instructions' => __( 'Enter each choice on a new line.', 'acf' ) . '<br />' . __( 'For more control, you may specify both a value and label like this:', 'acf' ) . '<br /><span class="acf-field-setting-example">' . __( 'red : Red', 'acf' ) . '</span>',
 					'type'         => 'textarea',
 					'name'         => 'choices',
 				)
 			);
 
-			// allow_null
-			acf_render_field_setting(
-				$field,
-				array(
-					'label'        => __( 'Allow Null?', 'acf' ),
-					'instructions' => '',
-					'name'         => 'allow_null',
-					'type'         => 'true_false',
-					'ui'           => 1,
-				)
-			);
-
-			// other_choice
-			acf_render_field_setting(
-				$field,
-				array(
-					'label'        => __( 'Other', 'acf' ),
-					'instructions' => '',
-					'name'         => 'other_choice',
-					'type'         => 'true_false',
-					'ui'           => 1,
-					'message'      => __( "Add 'other' choice to allow for custom values", 'acf' ),
-				)
-			);
-
-			// save_other_choice
-			acf_render_field_setting(
-				$field,
-				array(
-					'label'        => __( 'Save Other', 'acf' ),
-					'instructions' => '',
-					'name'         => 'save_other_choice',
-					'type'         => 'true_false',
-					'ui'           => 1,
-					'message'      => __( "Save 'other' values to the field's choices", 'acf' ),
-					'conditions'   => array(
-						'field'    => 'other_choice',
-						'operator' => '==',
-						'value'    => 1,
-					),
-				)
-			);
-
-			// default_value
 			acf_render_field_setting(
 				$field,
 				array(
@@ -249,23 +206,6 @@ if ( ! class_exists( 'acf_field_radio' ) ) :
 				)
 			);
 
-			// layout
-			acf_render_field_setting(
-				$field,
-				array(
-					'label'        => __( 'Layout', 'acf' ),
-					'instructions' => '',
-					'type'         => 'radio',
-					'name'         => 'layout',
-					'layout'       => 'horizontal',
-					'choices'      => array(
-						'vertical'   => __( 'Vertical', 'acf' ),
-						'horizontal' => __( 'Horizontal', 'acf' ),
-					),
-				)
-			);
-
-			// return_format
 			acf_render_field_setting(
 				$field,
 				array(
@@ -281,9 +221,80 @@ if ( ! class_exists( 'acf_field_radio' ) ) :
 					),
 				)
 			);
-
 		}
 
+		/**
+		 * Renders the field settings used in the "Validation" tab.
+		 *
+		 * @since 6.0
+		 *
+		 * @param array $field The field settings array.
+		 * @return void
+		 */
+		function render_field_validation_settings( $field ) {
+			acf_render_field_setting(
+				$field,
+				array(
+					'label'        => __( 'Allow Null', 'acf' ),
+					'instructions' => '',
+					'name'         => 'allow_null',
+					'type'         => 'true_false',
+					'ui'           => 1,
+				)
+			);
+
+			acf_render_field_setting(
+				$field,
+				array(
+					'label'        => __( 'Allow Other Choice', 'acf' ),
+					'name'         => 'other_choice',
+					'type'         => 'true_false',
+					'ui'           => 1,
+					'instructions' => __( "Add 'other' choice to allow for custom values", 'acf' ),
+				)
+			);
+
+			acf_render_field_setting(
+				$field,
+				array(
+					'label'        => __( 'Save Other Choice', 'acf' ),
+					'name'         => 'save_other_choice',
+					'type'         => 'true_false',
+					'ui'           => 1,
+					'instructions' => __( "Save 'other' values to the field's choices", 'acf' ),
+					'conditions'   => array(
+						'field'    => 'other_choice',
+						'operator' => '==',
+						'value'    => 1,
+					),
+				)
+			);
+		}
+
+		/**
+		 * Renders the field settings used in the "Presentation" tab.
+		 *
+		 * @since 6.0
+		 *
+		 * @param array $field The field settings array.
+		 * @return void
+		 */
+		function render_field_presentation_settings( $field ) {
+			acf_render_field_setting(
+				$field,
+				array(
+					'label'        => __( 'Layout', 'acf' ),
+					'instructions' => '',
+					'type'         => 'radio',
+					'name'         => 'layout',
+					'layout'       => 'horizontal',
+					'choices'      => array(
+						'vertical'   => __( 'Vertical', 'acf' ),
+						'horizontal' => __( 'Horizontal', 'acf' ),
+					),
+				)
+			);
+		}
 
 		/*
 		*  update_field()
@@ -343,7 +354,7 @@ if ( ! class_exists( 'acf_field_radio' ) ) :
 					// get raw $field (may have been changed via repeater field)
 					// if field is local, it won't have an ID
 					$selector = $field['ID'] ? $field['ID'] : $field['key'];
-					$field    = acf_get_field( $selector, true );
+					$field    = acf_get_field( $selector );
 
 					// bail early if no ID (JSON only)
 					if ( ! $field['ID'] ) {

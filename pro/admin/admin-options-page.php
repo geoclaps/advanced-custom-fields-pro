@@ -118,6 +118,16 @@ if ( ! class_exists( 'acf_admin_options_page' ) ) :
 					// save
 					acf_save_post( $this->page['post_id'] );
 
+					/**
+					 * Fires after publishing a save on an options page.
+					 *
+					 * @since 6.1.7
+					 *
+					 * @param string|int  $post_id   The current id.
+					 * @param string      $menu_slug The current options page menu slug.
+					 */
+					do_action( 'acf/options_page/save', $this->page['post_id'], $this->page['menu_slug'] );
+
 					// redirect
 					wp_redirect( add_query_arg( array( 'message' => '1' ) ) );
 					exit;
@@ -187,7 +197,7 @@ if ( ! class_exists( 'acf_admin_options_page' ) ) :
 			);
 
 			// notices
-			if ( ! empty( $_GET['message'] ) && $_GET['message'] == '1' ) {
+			if ( ! empty( $_GET['message'] ) && $_GET['message'] == '1' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Used to display a notice.
 				acf_add_admin_notice( $this->page['updated_message'], 'success' );
 			}
 

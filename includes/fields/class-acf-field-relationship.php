@@ -21,10 +21,13 @@ if ( ! class_exists( 'acf_field_relationship' ) ) :
 		function initialize() {
 
 			// vars
-			$this->name     = 'relationship';
-			$this->label    = __( 'Relationship', 'acf' );
-			$this->category = 'relational';
-			$this->defaults = array(
+			$this->name          = 'relationship';
+			$this->label         = __( 'Relationship', 'acf' );
+			$this->category      = 'relational';
+			$this->description   = __( 'A dual-column interface to select one or more posts, pages, or custom post type items to create a relationship with the item that you\'re currently editing. Includes options to search and filter.', 'acf' );
+			$this->preview_image = acf_get_url() . '/assets/images/field-type-previews/field-preview-relationship.png';
+			$this->doc_url       = acf_add_url_utm_tags( 'https://www.advancedcustomfields.com/resources/relationship/', 'docs', 'field-type-selection' );
+			$this->defaults      = array(
 				'post_type'     => array(),
 				'taxonomy'      => array(),
 				'min'           => 0,
@@ -165,6 +168,17 @@ if ( ! class_exists( 'acf_field_relationship' ) ) :
 			} else {
 
 				$args['post_type'] = acf_get_post_types();
+
+			}
+
+			// post status
+			if ( ! empty( $options['post_status'] ) ) {
+
+				$args['post_status'] = acf_get_array( $options['post_status'] );
+
+			} elseif ( ! empty( $field['post_status'] ) ) {
+
+				$args['post_status'] = acf_get_array( $field['post_status'] );
 
 			}
 
@@ -440,7 +454,7 @@ if ( ! class_exists( 'acf_field_relationship' ) ) :
 			);
 
 			?>
-<div <?php acf_esc_attr_e( $atts ); ?>>
+<div <?php echo acf_esc_attrs( $atts ); ?>>
 	
 			<?php
 			acf_hidden_input(
@@ -537,7 +551,7 @@ if ( ! class_exists( 'acf_field_relationship' ) ) :
 								)
 							);
 						?>
-						<span data-id="<?php echo esc_attr( $post->ID ); ?>" class="acf-rel-item">
+						<span tabindex="0" data-id="<?php echo esc_attr( $post->ID ); ?>" class="acf-rel-item acf-rel-item-remove">
 								<?php echo acf_esc_html( $this->get_post_title( $post, $field ) ); ?>
 							<a href="#" class="acf-icon -minus small dark" data-name="remove_item"></a>
 						</span>
@@ -564,14 +578,7 @@ if ( ! class_exists( 'acf_field_relationship' ) ) :
 		*
 		*  @param   $field  - an array holding all the field's data
 		*/
-
 		function render_field_settings( $field ) {
-
-			// vars
-			$field['min'] = empty( $field['min'] ) ? '' : $field['min'];
-			$field['max'] = empty( $field['max'] ) ? '' : $field['max'];
-
-			// post_type
 			acf_render_field_setting(
 				$field,
 				array(
@@ -587,7 +594,21 @@ if ( ! class_exists( 'acf_field_relationship' ) ) :
 				)
 			);
 
-			// taxonomy
+			acf_render_field_setting(
+				$field,
+				array(
+					'label'        => __( 'Filter by Post Status', 'acf' ),
+					'instructions' => '',
+					'type'         => 'select',
+					'name'         => 'post_status',
+					'choices'      => acf_get_pretty_post_statuses(),
+					'multiple'     => 1,
+					'ui'           => 1,
+					'allow_null'   => 1,
+					'placeholder'  => __( 'Any post status', 'acf' ),
+				)
+			);
+
 			acf_render_field_setting(
 				$field,
 				array(
@@ -603,7 +624,6 @@ if ( ! class_exists( 'acf_field_relationship' ) ) :
 				)
 			);
 
-			// filters
 			acf_render_field_setting(
 				$field,
 				array(
@@ -619,43 +639,6 @@ if ( ! class_exists( 'acf_field_relationship' ) ) :
 				)
 			);
 
-			// filters
-			acf_render_field_setting(
-				$field,
-				array(
-					'label'        => __( 'Elements', 'acf' ),
-					'instructions' => __( 'Selected elements will be displayed in each result', 'acf' ),
-					'type'         => 'checkbox',
-					'name'         => 'elements',
-					'choices'      => array(
-						'featured_image' => __( 'Featured Image', 'acf' ),
-					),
-				)
-			);
-
-			// min
-			acf_render_field_setting(
-				$field,
-				array(
-					'label'        => __( 'Minimum posts', 'acf' ),
-					'instructions' => '',
-					'type'         => 'number',
-					'name'         => 'min',
-				)
-			);
-
-			// max
-			acf_render_field_setting(
-				$field,
-				array(
-					'label'        => __( 'Maximum posts', 'acf' ),
-					'instructions' => '',
-					'type'         => 'number',
-					'name'         => 'max',
-				)
-			);
-
-			// return_format
 			acf_render_field_setting(
 				$field,
 				array(
@@ -670,9 +653,63 @@ if ( ! class_exists( 'acf_field_relationship' ) ) :
 					'layout'       => 'horizontal',
 				)
 			);
-
 		}
 
+		/**
+		 * Renders the field settings used in the "Validation" tab.
+		 *
+		 * @since 6.0
+		 *
+		 * @param array $field The field settings array.
+		 * @return void
+		 */
+		function render_field_validation_settings( $field ) {
+			$field['min'] = empty( $field['min'] ) ? '' : $field['min'];
+			$field['max'] = empty( $field['max'] ) ? '' : $field['max'];
+
+			acf_render_field_setting(
+				$field,
+				array(
+					'label'        => __( 'Minimum Posts', 'acf' ),
+					'instructions' => '',
+					'type'         => 'number',
+					'name'         => 'min',
+				)
+			);
+
+			acf_render_field_setting(
+				$field,
+				array(
+					'label'        => __( 'Maximum Posts', 'acf' ),
+					'instructions' => '',
+					'type'         => 'number',
+					'name'         => 'max',
+				)
+			);
+		}
+
+		/**
+		 * Renders the field settings used in the "Presentation" tab.
+		 *
+		 * @since 6.0
+		 *
+		 * @param array $field The field settings array.
+		 * @return void
+		 */
+		function render_field_presentation_settings( $field ) {
+			acf_render_field_setting(
+				$field,
+				array(
+					'label'        => __( 'Elements', 'acf' ),
+					'instructions' => __( 'Selected elements will be displayed in each result', 'acf' ),
+					'type'         => 'checkbox',
+					'name'         => 'elements',
+					'choices'      => array(
+						'featured_image' => __( 'Featured Image', 'acf' ),
+					),
+				)
+			);
+		}
 
 		/*
 		*  format_value()
@@ -770,7 +807,7 @@ if ( ! class_exists( 'acf_field_relationship' ) ) :
 		 *  @date    23/01/13
 		 *
 		 *  @param   $value - the value which will be saved in the database
-		 *  @param   $post_id - the $post_id of which the value will be saved
+		 *  @param   $post_id - the post_id of which the value will be saved
 		 *  @param   $field - the field array holding all the field options
 		 *
 		 *  @return  $value - the modified value

@@ -16,10 +16,13 @@ if ( ! class_exists( 'ACF_Field_User' ) ) :
 		function initialize() {
 
 			// Props.
-			$this->name     = 'user';
-			$this->label    = __( 'User', 'acf' );
-			$this->category = 'relational';
-			$this->defaults = array(
+			$this->name          = 'user';
+			$this->label         = __( 'User', 'acf' );
+			$this->category      = 'relational';
+			$this->description   = __( 'Allows the selection of one or more users which can be used to create relationships between data objects.', 'acf' );
+			$this->preview_image = acf_get_url() . '/assets/images/field-type-previews/field-preview-user.png';
+			$this->doc_url       = acf_add_url_utm_tags( 'https://www.advancedcustomfields.com/resources/user/', 'docs', 'field-type-selection' );
+			$this->defaults      = array(
 				'role'          => '',
 				'multiple'      => 0,
 				'allow_null'    => 0,
@@ -46,11 +49,10 @@ if ( ! class_exists( 'ACF_Field_User' ) ) :
 		 * @return  void
 		 */
 		function render_field_settings( $field ) {
-
 			acf_render_field_setting(
 				$field,
 				array(
-					'label'        => __( 'Filter by role', 'acf' ),
+					'label'        => __( 'Filter by Role', 'acf' ),
 					'instructions' => '',
 					'type'         => 'select',
 					'name'         => 'role',
@@ -59,28 +61,6 @@ if ( ! class_exists( 'ACF_Field_User' ) ) :
 					'ui'           => 1,
 					'allow_null'   => 1,
 					'placeholder'  => __( 'All user roles', 'acf' ),
-				)
-			);
-
-			acf_render_field_setting(
-				$field,
-				array(
-					'label'        => __( 'Allow Null?', 'acf' ),
-					'instructions' => '',
-					'name'         => 'allow_null',
-					'type'         => 'true_false',
-					'ui'           => 1,
-				)
-			);
-
-			acf_render_field_setting(
-				$field,
-				array(
-					'label'        => __( 'Select multiple values?', 'acf' ),
-					'instructions' => '',
-					'name'         => 'multiple',
-					'type'         => 'true_false',
-					'ui'           => 1,
 				)
 			);
 
@@ -97,6 +77,38 @@ if ( ! class_exists( 'ACF_Field_User' ) ) :
 						'id'     => __( 'User ID', 'acf' ),
 					),
 					'layout'       => 'horizontal',
+				)
+			);
+
+			acf_render_field_setting(
+				$field,
+				array(
+					'label'        => __( 'Select Multiple', 'acf' ),
+					'instructions' => 'Allow content editors to select multiple values',
+					'name'         => 'multiple',
+					'type'         => 'true_false',
+					'ui'           => 1,
+				)
+			);
+		}
+
+		/**
+		 * Renders the field settings used in the "Validation" tab.
+		 *
+		 * @since 6.0
+		 *
+		 * @param array $field The field settings array.
+		 * @return void
+		 */
+		function render_field_validation_settings( $field ) {
+			acf_render_field_setting(
+				$field,
+				array(
+					'label'        => __( 'Allow Null', 'acf' ),
+					'instructions' => '',
+					'name'         => 'allow_null',
+					'type'         => 'true_false',
+					'ui'           => 1,
 				)
 			);
 		}
@@ -316,13 +328,15 @@ if ( ! class_exists( 'ACF_Field_User' ) ) :
 		 */
 		function ajax_query() {
 
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended
 			// Modify Request args.
 			if ( isset( $_REQUEST['s'] ) ) {
-				$_REQUEST['search'] = $_REQUEST['s'];
+				$_REQUEST['search'] = sanitize_text_field( $_REQUEST['s'] );
 			}
 			if ( isset( $_REQUEST['paged'] ) ) {
-				$_REQUEST['page'] = $_REQUEST['paged'];
+				$_REQUEST['page'] = absint( $_REQUEST['paged'] );
 			}
+			// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 			// Add query hooks.
 			add_action( 'acf/ajax/query_users/init', array( $this, 'ajax_query_init' ), 10, 2 );
@@ -351,7 +365,7 @@ if ( ! class_exists( 'ACF_Field_User' ) ) :
 			}
 
 			// Verify that this is a legitimate request using a separate nonce from the main AJAX nonce.
-			if ( ! isset( $_REQUEST['user_query_nonce'] ) || ! wp_verify_nonce( $_REQUEST['user_query_nonce'], 'acf/fields/user/query' . $query->field['key']) ) {
+			if ( ! isset( $_REQUEST['user_query_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( $_REQUEST['user_query_nonce'] ), 'acf/fields/user/query' . $query->field['key'] ) ) {
 				$query->send( new WP_Error( 'acf_invalid_request', __( 'Invalid request.', 'acf' ), array( 'status' => 404 ) ) );
 			}
 		}

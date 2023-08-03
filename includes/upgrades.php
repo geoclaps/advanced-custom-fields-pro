@@ -12,39 +12,30 @@
  *  @return  bool
  */
 function acf_has_upgrade() {
-
-	// vars
 	$db_version = acf_get_db_version();
 
-	// return true if DB version is < latest upgrade version
-	if ( $db_version && acf_version_compare( $db_version, '<', '5.5.0' ) ) {
+	if ( $db_version && acf_version_compare( $db_version, '<', ACF_UPGRADE_VERSION ) ) {
 		return true;
 	}
 
-	// update DB version if needed
 	if ( $db_version !== ACF_VERSION ) {
 		acf_update_db_version( ACF_VERSION );
 	}
 
-	// return
 	return false;
 }
 
 /**
- *  acf_upgrade_all
+ *  Runs upgrade routines if this site has an upgrade available.
  *
- *  Returns true if this site has an upgrade avaialble.
- *
- *  @date    24/8/18
- *  @since   5.7.4
- *
- *  @param   void
- *  @return  bool
+ *  @date  24/8/18
+ *  @since 5.7.4
  */
 function acf_upgrade_all() {
-
-	// increase time limit
-	@set_time_limit( 600 );
+	// Increase time limit if possible.
+	if ( function_exists( 'set_time_limit' ) ) {
+		set_time_limit( 600 );
+	}
 
 	// start timer
 	timer_start();
@@ -65,8 +56,18 @@ function acf_upgrade_all() {
 		acf_upgrade_550();
 	}
 
+	/**
+	 * When adding new upgrade routines here, increment the ACF_UPGRADE_VERSION
+	 * constant in `acf.php` to the new highest upgrade version.
+	 */
+
 	// upgrade DB version once all updates are complete
 	acf_update_db_version( ACF_VERSION );
+
+	if ( is_multisite() ) {
+		// Clears the network upgrade notification banner after site upgrades.
+		delete_site_transient( 'acf_network_upgrade_needed_' . ACF_UPGRADE_VERSION );
+	}
 
 	// log
 	global $wpdb;
@@ -193,7 +194,7 @@ function acf_upgrade_500_field_group( $ofg ) {
 	if ( is_array( $rules ) ) {
 
 		// if field group was duplicated, rules may be a serialized string!
-		$rules = array_map( 'maybe_unserialize', $rules );
+		$rules = array_map( 'acf_maybe_unserialize', $rules );
 
 		// convert rules to groups
 		$nfg['location'] = acf_convert_rules_to_groups( $rules, $anyorall );
@@ -209,7 +210,7 @@ function acf_upgrade_500_field_group( $ofg ) {
 	}
 
 	if ( $hide_on_screen = get_post_meta( $ofg->ID, 'hide_on_screen', true ) ) {
-		$nfg['hide_on_screen'] = maybe_unserialize( $hide_on_screen );
+		$nfg['hide_on_screen'] = acf_maybe_unserialize( $hide_on_screen );
 	}
 
 	// save field group
@@ -268,8 +269,8 @@ function acf_upgrade_500_fields( $ofg, $nfg ) {
 
 			// vars
 			$field = $row['meta_value'];
-			$field = maybe_unserialize( $field );
-			$field = maybe_unserialize( $field ); // run again for WPML
+			$field = acf_maybe_unserialize( $field );
+			$field = acf_maybe_unserialize( $field ); // run again for WPML
 
 			// bail early if key already migrated (potential duplicates in DB)
 			if ( isset( $checked[ $field['key'] ] ) ) {
@@ -510,7 +511,7 @@ function acf_upgrade_550_taxonomy( $taxonomy ) {
 			[3] => color
 			)
 			*/
-			if ( ! preg_match( "/^(_?){$taxonomy}_(\d+)_(.+)/", $row['option_name'], $matches ) ) {
+			if ( ! preg_match( "/^(_?){$taxonomy}_(\d+)_(.+)/", is_null( $row['option_name'] ) ? '' : $row['option_name'], $matches ) ) {
 				continue;
 			}
 
@@ -542,5 +543,3 @@ function acf_upgrade_550_taxonomy( $taxonomy ) {
 	// action for 3rd party
 	do_action( 'acf/upgrade_550_taxonomy', $taxonomy );
 }
-
-
