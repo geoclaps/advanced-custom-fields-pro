@@ -1354,6 +1354,7 @@
           if (dismissed && typeof dismissed == 'object' && dismissed.includes($(this).data('persist-id'))) {
             $(this).remove();
           } else {
+            $(this).show();
             $(this).on('click', '.notice-dismiss', function (e) {
               dismissed = acf.getPreference('dismissed-notices');
               if (!dismissed || typeof dismissed != 'object') {

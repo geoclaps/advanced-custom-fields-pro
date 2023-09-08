@@ -1328,8 +1328,7 @@
       // render
       this.render();
     },
-    render: function () {
-      let update_order_numbers = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+    render: function (update_order_numbers = true) {
       // Update order number.
       if (update_order_numbers) {
         this.$rows().each(function (i) {
@@ -1634,8 +1633,7 @@
     onBlurRowOrder: function (e, $el) {
       this.onChangeRowOrder(e, $el, false);
     },
-    onChangeRowOrder: function (e, $el) {
-      let update = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+    onChangeRowOrder: function (e, $el, update = true) {
       if (!this.get('pagination')) {
         return;
       }
@@ -1776,8 +1774,7 @@
       }
       this.updateRowStatus($row, 'changed');
     },
-    updateRowStatus: function ($row, status) {
-      let data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+    updateRowStatus: function ($row, status, data = true) {
       if (!this.get('pagination')) {
         return;
       }
@@ -1853,8 +1850,7 @@
         }
       });
     },
-    ajaxLoadPage: function () {
-      let clearChanged = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+    ajaxLoadPage: function (clearChanged = false) {
       const ajaxData = acf.prepareForAjax({
         action: 'acf/ajax/query_repeater',
         paged: this.page,

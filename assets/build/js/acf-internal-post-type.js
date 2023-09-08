@@ -32,15 +32,20 @@
       const name = $el.val();
       const $keyInput = $('.acf_slugified_key');
 
-      // generate field key.
+      // Generate field key.
       if ($keyInput.val().trim() == '') {
         let slug = acf.strSanitize(name.trim()).replaceAll('_', '-');
         slug = acf.applyFilters('generate_internal_post_type_name', slug, this);
+        let slugLength = 0;
         if ('taxonomy' === acf.get('screen')) {
-          $keyInput.val(slug.substring(0, 32));
-          return;
+          slugLength = 32;
+        } else if ('post_type' === acf.get('screen')) {
+          slugLength = 20;
         }
-        $keyInput.val(slug.substring(0, 20));
+        if (slugLength) {
+          slug = slug.substring(0, slugLength);
+        }
+        $keyInput.val(slug);
       }
     },
     initialize: function () {

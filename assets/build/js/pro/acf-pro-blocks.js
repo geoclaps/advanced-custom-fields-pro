@@ -209,12 +209,9 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
     }
 
     // Check category exists and fallback to "common".
-    const category = wp.blocks.getCategories().filter(_ref => {
-      let {
-        slug
-      } = _ref;
-      return slug === blockType.category;
-    }).pop();
+    const category = wp.blocks.getCategories().filter(({
+      slug
+    }) => slug === blockType.category).pop();
     if (!category) {
       //console.warn( `The block "${blockType.name}" is registered with an unknown category "${blockType.category}".` );
       blockType.category = 'common';
@@ -267,7 +264,7 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
     }
 
     // Set edit and save functions.
-    blockType.edit = props => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(ThisBlockEdit, props);
+    blockType.edit = props => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(ThisBlockEdit, _objectSpread({}, props));
     blockType.save = () => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(ThisBlockSave, null);
 
     // Add to storage.
@@ -341,12 +338,9 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
 
     // Loop over args and filter.
     for (const k in args) {
-      blocks = blocks.filter(_ref2 => {
-        let {
-          attributes
-        } = _ref2;
-        return attributes[k] === args[k];
-      });
+      blocks = blocks.filter(({
+        attributes
+      }) => attributes[k] === args[k]);
     }
 
     // Return results.
@@ -482,8 +476,7 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @param	int level The recursion level.
    * @return	object Result of React.createElement().
    */
-  function parseNode(node, acfBlockVersion) {
-    let level = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+  function parseNode(node, acfBlockVersion, level = 0) {
     // Get node name.
     const nodeName = parseNodeName(node.nodeName.toLowerCase(), acfBlockVersion);
     if (!nodeName) {
@@ -496,15 +489,14 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
       // Top level (after stripping away the container div), create a ref for passing through to ACF's JS API.
       nodeAttrs.ref = React.createRef();
     }
-    acf.arrayArgs(node.attributes).map(parseNodeAttr).forEach(_ref3 => {
-      let {
-        name,
-        value
-      } = _ref3;
+    acf.arrayArgs(node.attributes).map(parseNodeAttr).forEach(({
+      name,
+      value
+    }) => {
       nodeAttrs[name] = value;
     });
     if ('ACFInnerBlocks' === nodeName) {
-      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(ACFInnerBlocks, nodeAttrs);
+      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(ACFInnerBlocks, _objectSpread({}, nodeAttrs));
     }
 
     // Define args for React.createElement().
@@ -582,7 +574,7 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
     const innerBlockProps = useInnerBlocksProps({
       className: className
     }, props);
-    return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", innerBlockProps, innerBlockProps.children);
+    return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", _objectSpread({}, innerBlockProps), innerBlockProps.children);
   }
 
   /**
@@ -597,6 +589,10 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
   function parseNodeAttr(nodeAttr) {
     let name = nodeAttr.name;
     let value = nodeAttr.value;
+
+    // Allow overrides for third party libraries who might use specific attributes.
+    let shortcut = acf.applyFilters('acf_blocks_parse_node_attr', false, nodeAttr);
+    if (shortcut) return shortcut;
     switch (name) {
       // Class.
       case 'class':
@@ -712,7 +708,7 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
       }
     }
     render() {
-      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockListBlock, this.props);
+      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockListBlock, _objectSpread({}, this.props));
     }
   }, 'withDefaultAttributes');
   wp.hooks.addFilter('editor.BlockListBlock', 'acf/with-default-attributes', withDefaultAttributes);
@@ -807,7 +803,7 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
         onClick: toggleMode
       }))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(InspectorControls, null, mode === 'preview' && (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", {
         className: "acf-block-component acf-block-panel"
-      }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockForm, this.props))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockBody, this.props));
+      }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockForm, _objectSpread({}, this.props)))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockBody, _objectSpread({}, this.props)));
     }
   }
 
@@ -833,13 +829,13 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
       showForm = false;
     }
     if (getBlockVersion(name) > 1) {
-      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", useBlockProps({
+      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", _objectSpread({}, useBlockProps({
         className: additionalClasses
-      }), showForm ? (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockForm, props) : (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockPreview, props));
+      })), showForm ? (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockForm, _objectSpread({}, props)) : (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockPreview, _objectSpread({}, props)));
     } else {
-      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", useBlockProps(), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", {
+      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", _objectSpread({}, useBlockProps()), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", {
         className: "acf-block-component acf-block-body"
-      }, showForm ? (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockForm, props) : (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockPreview, props)));
+      }, showForm ? (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockForm, _objectSpread({}, props)) : (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockPreview, _objectSpread({}, props))));
     }
   }
 
@@ -1024,13 +1020,11 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
         ref: this.setRef
       }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(Placeholder, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(Spinner, null)));
     }
-    shouldComponentUpdate(_ref4, _ref5) {
-      let {
-        index
-      } = _ref4;
-      let {
-        html
-      } = _ref5;
+    shouldComponentUpdate({
+      index
+    }, {
+      html
+    }) {
       if (index !== this.props.index) {
         this.componentWillMove();
       }
@@ -1122,10 +1116,9 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @return	void
    */
   class BlockForm extends DynamicHTML {
-    setup(_ref6) {
-      let {
-        clientId
-      } = _ref6;
+    setup({
+      clientId
+    }) {
       this.id = `BlockForm-${clientId}`;
     }
     fetch() {
@@ -1152,10 +1145,9 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
         query: {
           form: true
         }
-      }).done(_ref7 => {
-        let {
-          data
-        } = _ref7;
+      }).done(({
+        data
+      }) => {
         this.setHtml(data.form.replaceAll(data.clientId, clientId));
       });
     }
@@ -1185,8 +1177,7 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
       } = this.state;
 
       // Callback for updating block data.
-      function serializeData() {
-        let silent = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      function serializeData(silent = false) {
         const data = acf.serialize($el, `acf-${clientId}`);
         if (silent) {
           attributes.data = data;
@@ -1227,11 +1218,10 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @return	void
    */
   class BlockPreview extends DynamicHTML {
-    setup(_ref8) {
-      let {
-        clientId,
-        name
-      } = _ref8;
+    setup({
+      clientId,
+      name
+    }) {
       const blockType = getBlockType(name);
       const contextPostId = acf.isget(this.props, 'context', 'postId');
       this.id = `BlockPreview-${clientId}`;
@@ -1244,8 +1234,7 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
         this.renderMethod = 'jsx';
       }
     }
-    fetch() {
-      let args = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    fetch(args = {}) {
       const {
         attributes = this.props.attributes,
         clientId = this.props.clientId,
@@ -1282,10 +1271,9 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
           preview: true
         },
         delay
-      }).done(_ref9 => {
-        let {
-          data
-        } = _ref9;
+      }).done(({
+        data
+      }) => {
         let replaceHtml = data.preview.replaceAll(data.clientId, clientId);
         if (getBlockVersion(name) == 1) {
           replaceHtml = '<div class="acf-block-preview">' + replaceHtml + '</div>';
@@ -1489,7 +1477,7 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
           label: acf.__('Change content alignment'),
           value: validateAlignment(alignContent),
           onChange: onChangeAlignContent
-        })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(OriginalBlockEdit, this.props));
+        })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(OriginalBlockEdit, _objectSpread({}, this.props)));
       }
     };
   }
@@ -1530,7 +1518,7 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
         }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(AlignmentToolbar, {
           value: validateAlignment(alignText),
           onChange: onChangeAlignText
-        })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(OriginalBlockEdit, this.props));
+        })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(OriginalBlockEdit, _objectSpread({}, this.props)));
       }
     };
   }
@@ -1568,7 +1556,7 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
         }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockFullHeightAlignmentControl, {
           isActive: fullHeight,
           onToggle: onToggleFullHeight
-        })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(OriginalBlockEdit, this.props));
+        })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(OriginalBlockEdit, _objectSpread({}, this.props)));
       }
     };
   }

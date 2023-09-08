@@ -131,7 +131,7 @@ function acf_get_setting( $name, $value = null ) {
  * @return array An array of ACF's internal post type names
  */
 function acf_get_internal_post_types() {
-	return array( 'acf-field-group', 'acf-post-type', 'acf-taxonomy' );
+	return array( 'acf-field-group', 'acf-post-type', 'acf-taxonomy', 'acf-ui-options-page' );
 }
 
 /*
@@ -629,6 +629,7 @@ function acf_get_post_types( $args = array() ) {
 	$exclude[] = 'acf-field-group';
 	$exclude[] = 'acf-post-type';
 	$exclude[] = 'acf-taxonomy';
+	$exclude[] = 'acf-ui-options-page';
 
 	// Get post type objects.
 	$objects = get_post_types( $args, 'objects' );
@@ -1048,11 +1049,6 @@ function acf_get_terms( $args ) {
 			'update_term_meta_cache' => false,
 		)
 	);
-
-	// parameters changed in version 4.5
-	if ( acf_version_compare( 'wp', '<', '4.5' ) ) {
-		return get_terms( $args['taxonomy'], $args );
-	}
 
 	// return
 	return get_terms( $args );

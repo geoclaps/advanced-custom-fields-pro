@@ -161,7 +161,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
     initializeFieldType: function () {
       var _fieldObject$data;
       const fieldObject = this.get('openedBy');
-      const fieldType = fieldObject === null || fieldObject === void 0 ? void 0 : (_fieldObject$data = fieldObject.data) === null || _fieldObject$data === void 0 ? void 0 : _fieldObject$data.type;
+      const fieldType = fieldObject === null || fieldObject === void 0 || (_fieldObject$data = fieldObject.data) === null || _fieldObject$data === void 0 ? void 0 : _fieldObject$data.type;
 
       // Select default field type
       if (fieldType) {
@@ -1127,7 +1127,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
         suppressFilters: true,
         dropdownCssClass: 'field-type-select-results',
         templateResult: function (selection) {
-          if (selection.loading || selection.element && selection.element.nodeName == 'OPTGROUP') {
+          if (selection.loading || selection.element && selection.element.nodeName === 'OPTGROUP') {
             var $selection = $('<span class="acf-selection"></span>');
             $selection.html(acf.escHtml(selection.text));
           } else {
@@ -1269,6 +1269,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
       // action (show)
       acf.doAction('show', $settings);
+      this.hideEmptyTabs();
 
       // open
       $settings.slideDown();
@@ -1766,6 +1767,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
         $tab.prepend(tabContent);
         acf.doAction('append', $tab);
       });
+      this.hideEmptyTabs();
     },
     updateParent: function () {
       // vars
@@ -1779,6 +1781,20 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
       // update
       this.prop('parent', ID);
+    },
+    hideEmptyTabs: function () {
+      const $settings = this.$settings();
+      const $tabs = $settings.find('.acf-field-settings:first > .acf-field-settings-main');
+      $tabs.each(function () {
+        const $tabContent = $(this);
+        const tabName = $tabContent.find('.acf-field-type-settings:first').data('parentTab');
+        const $tabLink = $settings.find('.acf-settings-type-' + tabName).first();
+        if ($.trim($tabContent.text()) === '') {
+          $tabLink.hide();
+        } else if ($tabLink.is(':hidden')) {
+          $tabLink.show();
+        }
+      });
     }
   });
 })(jQuery);
@@ -2702,6 +2718,53 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
     },
     initialize: function () {
       acf.addAction('prepare', this.maybeInitNewFieldGroup);
+      acf.add_filter('select2_args', this.setBidirectionalSelect2Args);
+      acf.add_filter('select2_ajax_data', this.setBidirectionalSelect2AjaxDataArgs);
+    },
+    setBidirectionalSelect2Args: function (args, $select, settings, field, instance) {
+      var _field$data;
+      if ((field === null || field === void 0 || (_field$data = field.data) === null || _field$data === void 0 ? void 0 : _field$data.call(field, 'key')) !== 'bidirectional_target') return args;
+      args.dropdownCssClass = 'field-type-select-results';
+      args.templateResult = function (selection) {
+        if ('undefined' !== typeof selection.element) {
+          return selection;
+        }
+        if (selection.children) {
+          return selection.text;
+        }
+        if (selection.loading || selection.element && selection.element.nodeName === 'OPTGROUP') {
+          var $selection = $('<span class="acf-selection"></span>');
+          $selection.html(acf.escHtml(selection.text));
+          return $selection;
+        }
+        if ('undefined' === typeof selection.human_field_type || 'undefined' === typeof selection.field_type || 'undefined' === typeof selection.this_field) {
+          return selection.text;
+        }
+        var $selection = $('<i title="' + acf.escHtml(selection.human_field_type) + '" class="field-type-icon field-type-icon-' + acf.escHtml(selection.field_type.replaceAll('_', '-')) + '"></i><span class="acf-selection has-icon">' + acf.escHtml(selection.text) + '</span>');
+        if (selection.this_field) {
+          $selection.last().append('<span class="acf-select2-default-pill">' + acf.__('This Field') + '</span>');
+        }
+        $selection.data('element', selection.element);
+        return $selection;
+      };
+      return args;
+    },
+    setBidirectionalSelect2AjaxDataArgs: function (data, args, $input, field, instance) {
+      if (data.field_key !== 'bidirectional_target') return data;
+      const $fieldObject = acf.findFieldObjects({
+        child: field
+      });
+      const fieldObject = acf.getFieldObject($fieldObject);
+      data.field_key = '_acf_bidirectional_target';
+      data.parent_key = fieldObject.get('key');
+      data.field_type = fieldObject.get('type');
+
+      // This might not be needed, but I wanted to figure out how to get a field setting in the JS API when the key isn't unique.
+      data.post_type = acf.getField(acf.findFields({
+        parent: $fieldObject,
+        key: 'post_type'
+      })).val();
+      return data;
     },
     maybeInitNewFieldGroup: function () {
       let $field_list_wrapper = $('#acf-field-group-fields > .inside > .acf-field-list-wrap.acf-auto-add-field');
